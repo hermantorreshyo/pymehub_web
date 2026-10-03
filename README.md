@@ -30,50 +30,35 @@ public/                      ← DocumentRoot
     ├── lib/                 ← dom (sin innerHTML), escape, formato, router, store, cola offline
     ├── components/          ← layout/, dashboard/, ui/
     └── views/               ← public/, admin/, management/, employee/, shared/
-tools/generar_kit_marca.ps1  ← regenera el kit de iconos a partir del logotipo PNG
+tools/
+├── servidor_demo.py         ← web + API simulada para ver la app sin instalar la API
+└── generar_kit_marca.ps1    ← regenera el kit de iconos a partir del logotipo PNG
+docs/manuales/               ← ejecución y despliegue
 ```
 
 ## Puesta en marcha
 
-1. Copia la configuración y pon la URL de la API:
+Guía completa (demostración, entorno local con la API real y producción): [`docs/manuales/01_MANUAL_DESPLIEGUE_WEB.md`](docs/manuales/01_MANUAL_DESPLIEGUE_WEB.md).
 
-   ```bash
-   cp public/js/config.example.js public/js/config.js
-   ```
+### Verla ya: modo demostración
 
-2. Publica `public/` como DocumentRoot de un host propio. El frontend y la API deben estar en **el mismo sitio** (mismo dominio registrable) para que la cookie de sesión `SameSite=Strict` viaje con las peticiones: en producción, `pymehub.hermantorres.com` y `api.pymehub.hermantorres.com`.
+Solo necesita Python 3.9 o superior. Sirve `public/` y simula la API con datos ficticios de dos empresas:
 
-### Entorno local (XAMPP)
-
-La API resuelve las rutas desde la raíz del host, así que cada repositorio necesita su propio host virtual. Con `*.localhost` no hace falta tocar el archivo `hosts` en Chrome, Edge ni Firefox, y el navegador lo trata como contexto seguro (el service worker funciona sin HTTPS).
-
-`apache/conf/extra/httpd-vhosts.conf`:
-
-```apache
-<VirtualHost *:80>
-    ServerName pymehub.localhost
-    DocumentRoot "C:/xampp2026/htdocs/eude/pymehub_web/public"
-    <Directory "C:/xampp2026/htdocs/eude/pymehub_web/public">
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>
-
-<VirtualHost *:80>
-    ServerName api.pymehub.localhost
-    DocumentRoot "C:/xampp2026/htdocs/eude/pymehub_api/public"
-    <Directory "C:/xampp2026/htdocs/eude/pymehub_api/public">
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>
+```bash
+python tools/servidor_demo.py
 ```
 
-- Frontend, `public/js/config.js`: `apiUrl: 'http://api.pymehub.localhost'`.
-- API, `config/config.php` (lo genera su instalador): `app.frontend_url` = `http://pymehub.localhost`, `cors.allowed_origins` = `['http://pymehub.localhost']` y `session.cookie_secure` = `false`.
-- Abre `http://pymehub.localhost`.
+Abre **http://localhost:8090** y entra con `gerente@castilla.demo` y la contraseña `demo1234`. Las demás cuentas (RR. HH., plan Entrada, empleado y administración) aparecen en la consola al arrancar y en el apartado 2 del manual. El servidor de demostración es una herramienta de desarrollo: no se despliega.
 
-La CSP de `.htaccess` detecta los hosts `*.localhost` y permite conectar con la API local por HTTP; en cualquier otro host solo permite `https://api.pymehub.hermantorres.com`.
+### Con la API real
+
+La API necesita **PHP 8.3 o superior y MySQL 8.4 LTS**. El XAMPP actual trae PHP 8.2 y MariaDB 10.4, que el instalador de la API rechaza, así que hay que instalar ambos aparte (manual, apartado 3). Después:
+
+1. `cp public/js/config.example.js public/js/config.js` y pon la URL de la API.
+2. Sirve `public/` como DocumentRoot de un host propio (en local, `pymehub.localhost` con `AllowOverride All`).
+3. La web y la API deben estar en **el mismo sitio** (mismo dominio registrable) para que la cookie de sesión `SameSite=Strict` viaje con las peticiones: `pymehub.localhost` y `api.pymehub.localhost` en local; `pymehub.hermantorres.com` y `api.pymehub.hermantorres.com` en producción.
+
+La CSP de `public/.htaccess` detecta los hosts `*.localhost` y permite conectar con la API local por HTTP; en cualquier otro host solo permite `https://api.pymehub.hermantorres.com`. En producción las mismas reglas van en el vhost (manual, apartado 4.2).
 
 ## Reglas de desarrollo
 

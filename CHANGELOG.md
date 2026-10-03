@@ -2,6 +2,18 @@
 
 Formato basado en *Keep a Changelog*; versiones SemVer.
 
+## [0.1.1] · 2026-10-03
+
+### Añadido
+- **Modo demostración** `tools/servidor_demo.py` (Python 3.9+, solo biblioteca estándar): sirve `public/` con la CSP local y simula la API v0.2.0 con las dos empresas de §18. Incluye sesión por cookie, CSRF, códigos `PH-*`, aislamiento entre empresas, permisos por perfil (P-10), límite del plan (PH-TENANT-002) y contrato de encargado (PH-TENANT-003). Es una herramienta de desarrollo y no se despliega.
+- **Manual 01 · Ejecutar y desplegar Pyme Hub Web** (`docs/manuales/01_MANUAL_DESPLIEGUE_WEB.md`): modo demostración, entorno local con la API real y producción en el VPS (vhost, HTTPS, comprobaciones, publicación de versiones, problemas frecuentes y lista final).
+
+### Cambiado
+- README: la puesta en marcha empieza por el modo demostración y avisa de que la API necesita PHP 8.3 o superior y MySQL 8.4 (el XAMPP actual trae PHP 8.2 y MariaDB 10.4).
+
+### Detectado
+- El vhost de la web del manual de la API usa `AllowOverride None`, así que en producción se ignora `public/.htaccess`. El nuevo manual (apartado 4.2) incluye un vhost que replica sus reglas; hay que trasladarlo al manual de `pymehub_api`.
+
 ## [0.1.0] · 2026-10-03
 
 ### Añadido
