@@ -1,0 +1,85 @@
+/*
+ * Pyme Hub · tokens de diseño (§13.2, RNF-034)
+ * Único archivo donde se escriben colores, radios, sombras, espacios y tipografía.
+ */
+:root {
+  /* Marca (Manual de Imagen Corporativa) */
+  --primary: #22C55E;          /* Verde Crecimiento: acción y crecimiento */
+  --secondary: #3B82F6;        /* Azul Confianza: enlaces y acciones secundarias */
+  --text: #1F2937;             /* Gris Carbón: texto */
+  --sand: #F8F7F4;             /* Arena: fondos cálidos (login, marketing) */
+  --blue-light: #E0F2FE;       /* Azul Claro: fondos destacados */
+
+  /* Interfaz (Manual de Maquetación) */
+  --navy: #08263B;             /* Navegación lateral (P-12: navy, como los mockups) */
+  --muted: #64748B;
+  --background: #F6F8FA;
+  --surface: #FFFFFF;
+  --border: #E2E8F0;
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+
+  /* Variantes derivadas para texto y fondos con contraste AA (RNF-045) */
+  --primary-strong: #15803D;   /* verde para texto y botón primario sobre blanco (4.5:1) */
+  --primary-hover: #166534;
+  --primary-soft: #DCFCE7;
+  --secondary-strong: #1D4ED8; /* enlaces sobre blanco */
+  --secondary-soft: #DBEAFE;
+  --warning-strong: #B45309;
+  --warning-soft: #FEF3C7;
+  --danger-strong: #B91C1C;
+  --danger-soft: #FEE2E2;
+  --info-soft: var(--blue-light);
+  --on-primary: #FFFFFF;
+  --on-navy: #FFFFFF;
+  --on-navy-muted: rgba(255, 255, 255, 0.72);
+  --navy-hover: rgba(255, 255, 255, 0.08);
+  --navy-border: rgba(255, 255, 255, 0.12);
+  --overlay: rgba(8, 38, 59, 0.48);
+  --focus-ring: #2563EB;
+  --skeleton: #EDF1F5;
+  --skeleton-shine: #F8FAFC;
+
+  /* Radios y sombras */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --shadow-card: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-raised: 0 8px 24px rgba(15, 23, 42, 0.12);
+  --shadow-nav: 0 -2px 12px rgba(15, 23, 42, 0.08);
+
+  /* Tipografía */
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif; /* titulares, KPI, CTA */
+  --font-ui: 'Inter', system-ui, sans-serif;                  /* interfaz, tablas, datos */
+  --fs-h1: clamp(1.75rem, 1.4rem + 1vw, 2rem);    /* 28–32 px (RNF-038) */
+  --fs-h2: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem); /* 20–24 px */
+  --fs-h3: 1.0625rem;                               /* 17 px */
+  --fs-body: 0.9375rem;                             /* 15 px */
+  --fs-small: 0.8125rem;                            /* 13 px */
+  --fs-xs: 0.75rem;                                 /* 12 px */
+  --fs-kpi: clamp(1.75rem, 1.5rem + 0.8vw, 2.25rem); /* 28–36 px */
+  --lh-tight: 1.2;
+  --lh-body: 1.5;
+
+  /* Espaciado: 4 · 8 · 12 · 16 · 24 · 32 · 40 · 48 */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px;
+
+  /* Medidas de layout */
+  --sidebar-width: 240px;
+  --sidebar-width-compact: 80px;
+  --topbar-height: 64px;
+  --mobile-nav-height: 64px;
+  --touch-target: 44px;          /* zonas táctiles (RNF-031) */
+  --content-max: 1600px;
+  --form-max: 640px;
+  --chart-min-height: 240px;     /* RNF-043 */
+
+  /* Movimiento (RNF-047) */
+  --duration-fast: 120ms;
+  --duration: 200ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+}

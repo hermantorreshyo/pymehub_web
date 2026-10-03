@@ -1,0 +1,50 @@
+# Pyme Hub Web · Apache sirve public/ tal cual (sin compilación).
+Options -Indexes -MultiViews
+DirectoryIndex index.html
+
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+    AddType text/javascript .js
+    AddType image/svg+xml .svg
+    AddCharset utf-8 .js .css .html .webmanifest .svg
+</IfModule>
+
+# Archivos ocultos (.htaccess, .git…) nunca se sirven
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header always unset X-Powered-By
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+    Header always set X-Frame-Options "DENY"
+
+    # CSP (SEC-004): solo recursos propios, la API, Chart.js (cdnjs) y Google Fonts.
+    <If "%{HTTP_HOST} =~ /^(localhost|127\.0\.0\.1|[a-z0-9.-]+\.localhost)(:\d+)?$/">
+        # Entorno local: la API vive en otro host *.localhost por HTTP
+        Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://*.localhost:* http://localhost:* http://127.0.0.1:*; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    </If>
+    <Else>
+        Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.pymehub.hermantorres.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        Header always set Strict-Transport-Security "max-age=31536000" "expr=%{HTTPS} == 'on'"
+    </Else>
+
+    # Sin hash en los nombres de archivo: HTML, JS, CSS, manifest y service worker se revalidan
+    # siempre (ETag) para no mezclar módulos de versiones distintas; las imágenes, un día.
+    <FilesMatch "\.(html|js|css|webmanifest)$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+    <FilesMatch "\.(svg|png|webp|jpg)$">
+        Header set Cache-Control "public, max-age=86400"
+    </FilesMatch>
+</IfModule>
+
+# Producción: forzar HTTPS (SEC-003); en local no aplica
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1|[a-z0-9.-]+\.localhost)(:\d+)?$ [NC]
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+</IfModule>

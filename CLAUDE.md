@@ -4,7 +4,7 @@ Frontend del MVP de Pyme Hub (TFM EUDE): PWA que **solo consume la API** de `pym
 
 ## Documentos que mandan
 - Requisitos: `docs/requisitos/PYMEHUB_MVP_REQUERIMIENTOS_TECNICOS.md` (sobre todo §13: frontend, tokens, layout, estados, accesibilidad y diferencias entre mockups y MVP).
-- `docs/diseno/PymeHub_Manual_Maquetacion_HTML_CSS_v1_0.md`: reglas de maquetación obligatorias.
+- `docs/diseno/PymeHub_Manual_Maquetacion_HTML_CSS_v1.0.md`: reglas de maquetación obligatorias.
 - `docs/diseno/Manual_de_Imagen_Corporativa_Pyme_Hub.pdf` y los mockups: referencia visual. Si un mockup contradice los requisitos, mandan los requisitos.
 - Contrato de la API: `pymehub_api/docs/openapi.yaml`.
 

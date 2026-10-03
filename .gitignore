@@ -1,0 +1,14 @@
+# Configuración por entorno (se versiona public/js/config.example.js)
+public/js/config.js
+
+# Claude Code: worktrees y ajustes locales
+.claude/worktrees/
+.claude/settings.local.json
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
