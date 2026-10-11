@@ -1,8 +1,12 @@
 /**
  * Tabla de rutas (navegación por hash). Las vistas se cargan bajo demanda.
  * Grupos: admin (ADMIN), gestion (GERENTE y RRHH), empleado (EMPLEADO).
+ * `site`: sitio web público a pantalla completa, visible con y sin sesión.
  */
 export const routes = [
+  // Sitio web público: primera pantalla para cualquier visitante, con o sin sesión
+  { path: '/', site: true, view: () => import('./views/public/sitio.js') },
+
   // Sin sesión
   { path: '/acceso', public: true, guestOnly: true, view: () => import('./views/public/login.js') },
   { path: '/invitacion/:token', public: true, guestOnly: true, view: () => import('./views/public/invitacion.js') },

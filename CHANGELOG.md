@@ -2,6 +2,26 @@
 
 Formato basado en *Keep a Changelog*; versiones SemVer.
 
+## [0.2.0] · 2026-10-11
+
+### Añadido
+- **Sitio web público** (`#/`, `views/public/sitio.js`): primera pantalla de `pymehub.hermantorres.com` con la línea de la landing "Muy pronto": logotipo animado, consola de módulos rotativa, cómo funciona, módulos del MVP, privacidad, planes Entrada y Completo (§6.2) y botón **Acceso usuarios** en la cabecera, el hero, la llamada final y el pie. No llama a la API ni muestra cifras sin respaldo (§13.6). Con sesión abierta, el botón pasa a "Ir a mi panel".
+- **Logotipo animado** (`components/brand/AnimatedLogo.js`): se arma con las piezas exactas del logotipo (núcleo, anillo con barrido, personas que "respiran", letras con destello y lema), con halo y pulso. Variante clara para fondos navy, solo para "Pyme" y el lema (P-13). Piezas en `assets/brand/logo-anim/` (WebP).
+- **Fondo de marca** (`components/brand/BrandBackground.js`): retícula de plano en movimiento y manchas verde y azul, en versión arena y navy.
+- `styles/brand.css`: lenguaje visual y de movimiento (entradas escalonadas, punto "vivo", barra indeterminada, chips, texto con degradado, aparición al hacer scroll) con `prefers-reduced-motion` (RNF-047).
+- Tokens de marca y movimiento en `tokens.css` (degradados, retícula, manchas, navy profundo, duraciones y curvas) (RNF-034).
+- Iconos Lucide nuevos en el sprite: `shield-check`, `truck`, `smartphone`, `log-in`, `leaf`, `trending-up`, `check`, `target`, `wifi` (RNF-046).
+- **Documentación**: `docs/PROMPT_MAESTRO.md`, índice `docs/README.md`, mockups de la aplicación en WebP (`docs/diseno/mockups/`), landing de referencia (`docs/diseno/referencias/`) y anexo del prototipo de interfaz (`docs/anexos/`).
+
+### Cambiado
+- **Acceso en pantalla partida** (mockup 01, adaptado): panel de marca navy con el logotipo animado, el lema y los tres módulos; formulario sobre fondo arena con retícula. En móvil, el panel se reduce a una cabecera compacta. Sin fotografías de stock (RNF-048) ni acceso con Google (fuera del alcance).
+- Acceso: ayuda "¿Has olvidado tu contraseña?" (enlace nuevo de la empresa, RF-007) y nota para quien aún no tiene cuenta. La activación por invitación usa el mismo diseño.
+- **Pantalla de arranque** con el símbolo, ondas de halo y la barra indeterminada de marca.
+- **Navegación**: sin hash se muestra el sitio público (antes redirigía al acceso); la PWA instalada sigue arrancando en `#/inicio`. El sitio se muestra aunque la API no responda.
+- Las vistas de la aplicación entran con una transición sutil y los KPI y tarjetas del panel aparecen escalonados; la carga de sección muestra la barra de marca sobre el esqueleto.
+- El título que recibe el foco al navegar (RNF-045) ya no dibuja el recuadro de foco: no es un control.
+- Service worker `v0.2.0`: precachea `brand.css` y `BrandBackground.js`.
+
 ## [0.1.0] · 2026-10-03
 
 ### Añadido

@@ -5,6 +5,7 @@
  *
  * Ruta: {
  *   path: '/plantilla/:id',
+ *   site: true,                        // sitio público: visible con y sin sesión, sin AppShell
  *   public: true,                      // accesible sin sesión (login, invitación)
  *   guestOnly: true,                   // con sesión redirige a /inicio
  *   views: { gestion: () => import(...), empleado: ..., admin: ... },
@@ -88,6 +89,8 @@ function decide({ path, query }) {
   if (!found) return { notFound: true, path, query };
   const { route, params } = found;
 
+  if (route.site) return { route, params, query, loader: route.view };
+
   if (!session.isAuthenticated) {
     if (route.public) return { route, params, query, loader: route.view };
     return { redirect: '/acceso', query: { volver: path === '/' ? '' : path } };
@@ -119,8 +122,9 @@ export function startRouter(routeTable, renderFn) {
   routes = routeTable.map((r) => ({ ...r, _compiled: compile(r.path) }));
   render = renderFn;
   window.addEventListener('hashchange', resolve);
-  if (!location.hash || location.hash === '#' || location.hash === '#/') {
-    history.replaceState(null, '', session.isAuthenticated ? '#/inicio' : '#/acceso');
+  // Sin hash se muestra el sitio web público (#/); la PWA instalada arranca en #/inicio (manifest)
+  if (!location.hash || location.hash === '#') {
+    history.replaceState(null, '', '#/');
   }
   return resolve();
 }

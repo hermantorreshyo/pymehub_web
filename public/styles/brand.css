@@ -1,0 +1,703 @@
+/*
+ * Pyme Hub · lenguaje visual de marca y movimiento.
+ * Continúa la línea gráfica de la landing "Muy pronto": retícula de plano, manchas de marca,
+ * logotipo que se arma pieza a pieza, titulares con degradado y entradas escalonadas.
+ * Solo usa valores de tokens.css (RNF-034). Respeta prefers-reduced-motion (RNF-047).
+ */
+
+/* =====================================================================
+   1. Logotipo animado (componente brand/AnimatedLogo.js)
+   ===================================================================== */
+@property --sweep {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.brand-logo {
+  width: 100%;
+  /* Las piezas sobresalen del lienzo (cabeza superior, "P" y lema): se reserva su espacio */
+  padding-block: 10.6% 5.6%;
+  container-type: inline-size;
+}
+
+.brand-logo--sin-lema { padding-block-end: 1%; }
+
+.brand-logo__stage {
+  position: relative;               /* lienzo propio del componente, no del layout principal */
+  width: 100%;
+  aspect-ratio: 1653 / 450;
+}
+
+.brand-logo__pc {
+  position: absolute;
+  display: block;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+/* Posición exacta de cada pieza en el logotipo original (% del lienzo) */
+.brand-logo__pc--anillo    { left: 4.477%;  top: 23.778%;  width: 18.512%; height: 64.889%; --ux: -0.164; --uy: 0.986; }
+.brand-logo__pc--nucleo    { left: 9.982%;  top: 39.778%;  width: 7.683%;  height: 28.667%; --ux: 0;      --uy: -1; }
+.brand-logo__pc--persona-1 { left: 6.594%;  top: -33.111%; width: 16.092%; height: 60%;     --ux: 0.052;  --uy: -0.999; --d: 1.3s; }
+.brand-logo__pc--persona-2 { left: 21.113%; top: 15.778%;  width: 6.292%;  height: 37.111%; --ux: 0.888;  --uy: -0.461; --d: 1.43s; }
+.brand-logo__pc--persona-3 { left: 16.455%; top: 74.222%;  width: 8.167%;  height: 27.778%; --ux: 0.588;  --uy: 0.809;  --d: 1.56s; }
+.brand-logo__pc--persona-4 { left: 3.448%;  top: 68.222%;  width: 6.655%;  height: 24.667%; --ux: -0.701; --uy: 0.713;  --d: 1.69s; }
+.brand-logo__pc--persona-5 { left: 0.484%;  top: 30.889%;  width: 5.868%;  height: 22%;     --ux: -0.952; --uy: -0.307; --d: 1.82s; }
+.brand-logo__pc--letra-p   { left: 28.917%; top: -38.444%; width: 9.074%;  height: 102.889%; --d: 2s;    --w: 3.8s; }
+.brand-logo__pc--letra-y   { left: 37.75%;  top: 6.889%;   width: 9.014%;  height: 67.778%; --d: 2.08s; --w: 3.89s; }
+.brand-logo__pc--letra-m   { left: 46.703%; top: 26.444%;  width: 12.946%; height: 38.222%; --d: 2.16s; --w: 3.98s; }
+.brand-logo__pc--letra-e   { left: 59.468%; top: 32.444%;  width: 8.711%;  height: 33.333%; --d: 2.24s; --w: 4.07s; }
+.brand-logo__pc--letra-h   { left: 65.154%; top: -12.889%; width: 18.572%; height: 77.778%; --d: 2.44s; --w: 4.16s; }
+.brand-logo__pc--letra-u   { left: 80.218%; top: 32.667%;  width: 9.316%;  height: 32.889%; --d: 2.52s; --w: 4.25s; }
+.brand-logo__pc--letra-b   { left: 87.598%; top: 18.889%;  width: 12.039%; height: 46.444%; --d: 2.6s;  --w: 4.34s; }
+.brand-logo__pc--lema      { left: 29.099%; top: 78.889%;  width: 70.175%; height: 41.111%; }
+
+/* Halo de "construcción" alrededor del símbolo */
+.brand-logo__halo {
+  position: absolute;
+  left: 13.823%;
+  top: 54.222%;
+  width: 29.6%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.brand-logo__halo svg { width: 100%; height: 100%; overflow: visible; }
+
+.brand-logo__orbit {
+  fill: none;
+  stroke: var(--secondary);
+  stroke-opacity: 0.22;
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+  transform-origin: 50% 50%;
+  animation: brand-spin 40s linear infinite, brand-fade-in 0.8s ease 2.2s both;
+}
+
+.brand-logo__scan {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 55 253;
+  transform-origin: 50% 50%;
+  animation: brand-spin 3.6s var(--ease-sweep) infinite, brand-fade-in 0.8s ease 2.4s both;
+}
+
+.brand-logo__pulse {
+  position: absolute;
+  left: 13.823%;
+  top: 54.222%;
+  width: 7.683%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  animation: brand-halo-pulse 2.6s ease-out 1.4s infinite;
+  pointer-events: none;
+}
+
+.brand-logo--claro .brand-logo__orbit { stroke: var(--on-navy); stroke-opacity: 0.25; }
+
+/* Secuencia de montaje: núcleo → anillo → personas → letras → lema */
+.brand-logo--animate .brand-logo__pc--core { animation: brand-pop 0.7s var(--ease-spring) 0.2s both; }
+.brand-logo--animate .brand-logo__pc--ring {
+  -webkit-mask: conic-gradient(var(--mask-solid) var(--sweep), transparent 0);
+  mask: conic-gradient(var(--mask-solid) var(--sweep), transparent 0);
+  animation: brand-ring-in 1.1s var(--ease-sweep) 0.55s both, brand-sweep 1.1s var(--ease-sweep) 0.55s both;
+}
+.brand-logo--animate .brand-logo__pc--head {
+  animation:
+    brand-head-in 0.75s cubic-bezier(0.34, 1.45, 0.64, 1) var(--d) both,
+    brand-breathe 3.6s ease-in-out calc(var(--d) + 2.4s) infinite;
+}
+.brand-logo--animate .brand-logo__pc--ltr {
+  animation: brand-rise 0.6s var(--ease-out) var(--d) both, brand-wave 6s ease-in-out var(--w) infinite;
+}
+.brand-logo--animate .brand-logo__pc--tag { animation: brand-fade-up 0.9s ease 2.9s both; }
+
+@keyframes brand-pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes brand-ring-in { from { transform: rotate(-140deg) scale(0.6); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes brand-sweep { from { --sweep: 0deg; } to { --sweep: 360deg; } }
+@keyframes brand-head-in {
+  from { transform: translate(calc(var(--ux) * 170%), calc(var(--uy) * 170%)) scale(0.2); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes brand-breathe {
+  0%, 100% { transform: none; }
+  50% { transform: translate(calc(var(--ux) * 7%), calc(var(--uy) * 7%)); }
+}
+@keyframes brand-rise { from { opacity: 0; transform: translateY(35%); } to { opacity: 1; transform: none; } }
+@keyframes brand-wave { 0%, 8%, 100% { filter: none; } 4% { filter: brightness(1.45) saturate(1.15); } }
+@keyframes brand-halo-pulse {
+  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.45; }
+  100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; }
+}
+
+/* =====================================================================
+   2. Animaciones compartidas
+   ===================================================================== */
+@keyframes brand-spin { to { transform: rotate(360deg); } }
+@keyframes brand-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes brand-fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes brand-dot-pulse { 0% { transform: scale(0.8); opacity: 0.55; } 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes brand-grid-move { to { background-position: var(--grid-size) var(--grid-size), var(--grid-size) var(--grid-size); } }
+@keyframes brand-indeterminate { 0% { left: -40%; } 100% { left: 102%; } }
+@keyframes brand-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+
+/* Entrada escalonada: los hijos directos aparecen uno tras otro */
+.reveal > * { animation: brand-fade-up var(--duration-enter) var(--ease-out) both; }
+.reveal > :nth-child(2) { animation-delay: calc(var(--stagger) * 1); }
+.reveal > :nth-child(3) { animation-delay: calc(var(--stagger) * 2); }
+.reveal > :nth-child(4) { animation-delay: calc(var(--stagger) * 3); }
+.reveal > :nth-child(5) { animation-delay: calc(var(--stagger) * 4); }
+.reveal > :nth-child(6) { animation-delay: calc(var(--stagger) * 5); }
+.reveal > :nth-child(7) { animation-delay: calc(var(--stagger) * 6); }
+.reveal > :nth-child(n + 8) { animation-delay: calc(var(--stagger) * 7); }
+
+/* Aparición al hacer scroll (sitio público): la clase .is-visible la pone un IntersectionObserver */
+.on-scroll { opacity: 0; transform: translateY(18px); transition: opacity var(--duration-enter) var(--ease-out), transform var(--duration-enter) var(--ease-out); }
+.on-scroll.is-visible { opacity: 1; transform: none; }
+
+/* Texto con degradado de marca (versión AA para tamaños grandes) */
+.text-gradient {
+  background: var(--brand-gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Punto "vivo" con pulso */
+.live-dot {
+  position: relative;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: brand-dot-pulse 1.8s ease-out infinite;
+}
+
+/* Insignia tipo píldora */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--text);
+  box-shadow: var(--shadow-card);
+}
+
+/* Barra de progreso indeterminada (cargas de marca) */
+.brand-bar {
+  position: relative;
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--blue-light);
+}
+.brand-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 38%;
+  border-radius: var(--radius-pill);
+  background: var(--brand-gradient);
+  animation: brand-indeterminate 1.8s cubic-bezier(0.6, 0.1, 0.4, 0.9) infinite;
+}
+
+/* Chips de módulos (como la consola de la landing) */
+.chip-row { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.chip {
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--sand);
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  transition: background var(--duration) ease, border-color var(--duration) ease, color var(--duration) ease;
+}
+.chip.is-on { background: var(--success-tint); border-color: var(--success-border); color: var(--primary-strong); }
+
+/* =====================================================================
+   3. Fondo de marca: retícula de plano + manchas (componente brand/BrandBackground.js)
+   ===================================================================== */
+.brand-bg {
+  position: absolute;               /* capa decorativa dentro de su sección */
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.brand-bg__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 38%, var(--mask-solid) 20%, transparent 72%);
+  mask-image: radial-gradient(ellipse at 50% 38%, var(--mask-solid) 20%, transparent 72%);
+  animation: brand-grid-move 30s linear infinite;
+}
+
+.brand-bg__blob { position: absolute; border-radius: 50%; filter: blur(2px); }
+.brand-bg__blob--1 { width: 420px; height: 420px; background: var(--blob-green); left: -180px; bottom: -200px; opacity: 0.22; }
+.brand-bg__blob--2 { width: 340px; height: 340px; background: var(--blob-blue); right: -140px; top: -120px; opacity: 0.2; }
+.brand-bg__blob--3 { width: 180px; height: 180px; background: var(--blue-light); right: 12%; bottom: 8%; opacity: 0.8; }
+
+.brand-bg--dark .brand-bg__grid {
+  background-image:
+    linear-gradient(var(--grid-line-dark) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-dark) 1px, transparent 1px);
+  -webkit-mask-image: radial-gradient(ellipse at 40% 30%, var(--mask-solid) 10%, transparent 75%);
+  mask-image: radial-gradient(ellipse at 40% 30%, var(--mask-solid) 10%, transparent 75%);
+}
+.brand-bg--dark .brand-bg__blob--1 { opacity: 0.55; width: 520px; height: 520px; left: -200px; bottom: -220px; }
+.brand-bg--dark .brand-bg__blob--2 { opacity: 0.45; }
+.brand-bg--dark .brand-bg__blob--3 { opacity: 0.1; background: var(--on-navy); }
+
+/* =====================================================================
+   4. Sitio público (views/public/sitio.js)
+   ===================================================================== */
+.site {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--sand);
+  color: var(--text);
+  overflow-x: clip;
+}
+
+.site__header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--sand) 82%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--duration) ease, box-shadow var(--duration) ease;
+}
+.site__header.is-scrolled { border-bottom-color: var(--border); box-shadow: var(--shadow-card); }
+
+.site__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  width: min(100% - 2 * var(--space-4), var(--site-max));
+  margin-inline: auto;
+  min-height: var(--topbar-height);
+}
+
+.site__brand { display: inline-flex; align-items: center; flex: none; border-radius: var(--radius-sm); }
+.site__brand img { width: 150px; height: auto; } /* ≥ 140 px (RNF-049) */
+
+.site__nav { display: none; gap: var(--space-6); }
+.site__nav a {
+  color: var(--text-2);
+  font-weight: 500;
+  font-size: var(--fs-small);
+  text-decoration: none;
+  transition: color var(--duration) ease;
+}
+.site__nav a:hover { color: var(--text); }
+
+.site__access { white-space: nowrap; }
+
+.site__wrap {
+  position: relative;
+  z-index: 1;
+  width: min(100% - 2 * var(--space-4), var(--site-max));
+  margin-inline: auto;
+}
+
+/* Hero */
+.hero {
+  position: relative;
+  isolation: isolate;
+  padding-block: var(--space-8) var(--space-12);
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.hero__logo { width: min(640px, 100%); }
+.hero__logo .brand-logo { padding-block-end: 2%; }
+
+.hero__badge { animation: brand-fade-up 0.7s ease 1.5s both; }
+
+.hero h1 {
+  max-width: 22ch;
+  font-size: var(--fs-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  animation: brand-fade-up 0.8s ease 1.65s both;
+}
+
+.hero__lead {
+  max-width: 62ch;
+  color: var(--text-2);
+  font-size: var(--fs-lead);
+  line-height: 1.65;
+  animation: brand-fade-up 0.8s ease 1.8s both;
+}
+
+.hero__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  animation: brand-fade-up 0.8s ease 1.95s both;
+}
+
+.btn--lg { min-height: 52px; padding-inline: var(--space-6); font-size: var(--fs-body); border-radius: var(--radius-md); }
+
+/* Consola "en vivo" con los módulos (continuidad con la landing) */
+.console {
+  width: min(100%, 34rem);
+  margin-top: var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  display: grid;
+  gap: var(--space-3);
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
+  animation: brand-fade-up 0.8s ease 2.1s both;
+}
+.console__top { display: flex; align-items: center; gap: var(--space-3); min-height: 1.5em; font-weight: 500; font-size: var(--fs-small); }
+.console__spinner {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--blue-light);
+  border-top-color: var(--secondary);
+  animation: brand-spin 0.9s linear infinite;
+}
+.console__status { transition: opacity 0.35s ease, transform 0.35s ease; }
+.console__status.is-out { opacity: 0; transform: translateY(-6px); }
+
+/* Secciones */
+.section { position: relative; padding-block: var(--space-12); }
+.section--white { background: var(--surface); }
+.section__head { display: grid; gap: var(--space-3); max-width: 46rem; margin-bottom: var(--space-8); }
+.section__head--center { margin-inline: auto; text-align: center; justify-items: center; }
+.section__eyebrow {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary-strong);
+}
+.section__head h2 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.25rem); font-weight: 800; letter-spacing: -0.015em; }
+.section__head p { color: var(--text-2); font-size: var(--fs-lead); line-height: 1.6; }
+
+.feature-grid { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); }
+
+.feature {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-6);
+  background: var(--glass);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: transform var(--duration) var(--ease), box-shadow var(--duration) var(--ease), border-color var(--duration) ease;
+}
+.feature:hover { transform: translateY(-3px); box-shadow: var(--shadow-raised); border-color: var(--success-border); }
+.feature h3 { font-size: 1.125rem; }
+.feature p { color: var(--text-2); font-size: var(--fs-small); line-height: 1.6; }
+.feature__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--primary-soft);
+  color: var(--primary-strong);
+}
+.feature__icon--blue { background: var(--secondary-soft); color: var(--secondary-strong); }
+.feature__icon--navy { background: var(--navy); color: var(--on-navy); }
+.feature__list { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; font-size: var(--fs-small); }
+.feature__list li { display: flex; gap: var(--space-2); align-items: flex-start; }
+.feature__list .icon { flex: none; margin-top: 2px; color: var(--primary-strong); }
+.feature__tag { justify-self: start; }
+
+/* Banda de beneficios */
+.steps { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); counter-reset: paso; }
+.step { display: grid; gap: var(--space-2); padding: var(--space-5); border-radius: var(--radius-lg); background: var(--background); border: 1px solid var(--border); min-width: 0; }
+.step::before {
+  counter-increment: paso;
+  content: counter(paso, decimal-leading-zero);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.5rem;
+  line-height: 1;
+  background: var(--brand-gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.step h3 { font-size: 1rem; }
+.step p { color: var(--text-2); font-size: var(--fs-small); }
+
+/* Planes */
+.plans { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); max-width: 52rem; margin-inline: auto; }
+.plan {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  min-width: 0;
+}
+.plan--featured { border: 2px solid var(--primary); box-shadow: var(--shadow-raised); }
+.plan__name { font-size: 1.25rem; }
+.plan__price { display: flex; align-items: baseline; gap: var(--space-2); }
+.plan__amount { font-family: var(--font-display); font-weight: 800; font-size: 2.5rem; line-height: 1; }
+.plan__unit { color: var(--muted); font-size: var(--fs-small); }
+.plans__note { margin-top: var(--space-4); text-align: center; color: var(--muted); font-size: var(--fs-small); }
+
+/* Llamada final (navy) */
+.cta-band {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  gap: var(--space-4);
+  justify-items: center;
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--navy-gradient);
+  color: var(--on-navy);
+}
+.cta-band > :not(.brand-bg) { position: relative; z-index: 1; }
+.cta-band h2 { color: var(--on-navy); font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.25rem); font-weight: 800; max-width: 22ch; }
+.cta-band p { color: var(--on-navy-muted); max-width: 52ch; }
+
+.site__footer { position: relative; z-index: 1; padding-block: var(--space-10); text-align: center; color: var(--text-2); font-size: var(--fs-small); line-height: 1.7; }
+.site__footer strong { font-family: var(--font-display); color: var(--text); }
+.site__footer nav { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-4); margin-top: var(--space-3); }
+
+/* =====================================================================
+   5. Acceso en pantalla partida (views/public/auth-layout.js · mockup 01)
+   ===================================================================== */
+.auth-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--sand);
+}
+
+.auth-brand {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  align-content: center;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-6) var(--space-8);
+  background: var(--navy-gradient);
+  color: var(--on-navy);
+}
+.auth-brand > :not(.brand-bg) { position: relative; z-index: 1; }
+.auth-brand__logo { width: min(340px, 82%); }
+.auth-brand__claim { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.4rem, 1.1rem + 1.4vw, 2.2rem); line-height: 1.15; color: var(--on-navy); animation: brand-fade-up 0.8s ease 1.6s both; }
+.auth-brand__claim span { color: var(--primary); }
+.auth-brand__text { color: var(--on-navy-muted); max-width: 34ch; animation: brand-fade-up 0.8s ease 1.75s both; }
+.auth-brand__back {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--on-navy-muted);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+}
+.auth-brand__back:hover { color: var(--on-navy); }
+
+.auth-panel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding: var(--space-8) var(--space-4) var(--space-10);
+}
+.auth-panel > .auth-card { position: relative; z-index: 1; animation: brand-fade-up 0.7s var(--ease-out) 0.15s both; }
+.auth-card__mark { width: 190px; justify-self: center; }
+.auth-help { justify-self: end; text-align: right; }
+.auth-help summary { cursor: pointer; color: var(--secondary-strong); font-weight: 500; list-style: none; border-radius: var(--radius-sm); }
+.auth-help summary::-webkit-details-marker { display: none; }
+.auth-help p { margin-top: var(--space-2); max-width: 30ch; margin-inline-start: auto; }
+.auth-note { text-align: center; }
+
+/* Tarjetas de módulo en el panel de marca */
+.mini-modules { display: grid; gap: var(--space-3); grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: var(--space-6); }
+.mini-module {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--glass-dark);
+  border: 1px solid var(--navy-border);
+  backdrop-filter: blur(6px);
+  font-size: var(--fs-small);
+  color: var(--on-navy);
+  animation: brand-fade-up 0.8s ease both, brand-float 7s ease-in-out infinite;
+}
+.mini-module:nth-child(1) { animation-delay: 1.9s, 3s; }
+.mini-module:nth-child(2) { animation-delay: 2s, 4s; }
+.mini-module:nth-child(3) { animation-delay: 2.1s, 5s; }
+.mini-module .icon { color: var(--primary); width: 1.4em; height: 1.4em; }
+.mini-module span { color: var(--on-navy-muted); font-size: var(--fs-xs); }
+
+/* =====================================================================
+   6. Pantalla de arranque (index.html y app.js)
+   ===================================================================== */
+.splash {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: var(--space-6);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--space-6);
+  background: var(--sand);
+  text-align: center;
+  color: var(--muted);
+}
+.splash > :not(.brand-bg) { position: relative; z-index: 1; }
+.splash__symbol { position: relative; width: 72px; height: 72px; display: grid; place-items: center; }
+.splash__symbol img { width: 64px; height: 64px; animation: brand-pop 0.7s var(--ease-spring) both; }
+.splash__symbol::before,
+.splash__symbol::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  opacity: 0;
+  animation: brand-halo-ring 2.2s ease-out infinite;
+}
+.splash__symbol::after { animation-delay: 1.1s; border-color: var(--secondary); }
+.splash .brand-bar { width: min(220px, 60vw); }
+@keyframes brand-halo-ring { 0% { transform: scale(0.9); opacity: 0.5; } 100% { transform: scale(2.2); opacity: 0; } }
+
+/* =====================================================================
+   7. Movimiento dentro de la app (sutil: es una herramienta de trabajo)
+   ===================================================================== */
+.view-enter { animation: brand-fade-up 0.45s var(--ease-out) both; }
+
+/* KPI y tarjetas del panel aparecen escalonadas */
+.view-enter .kpi-grid > *,
+.view-enter .dashboard-grid > * { animation: brand-fade-up 0.5s var(--ease-out) both; }
+.view-enter .kpi-grid > :nth-child(2),
+.view-enter .dashboard-grid > :nth-child(2) { animation-delay: calc(var(--stagger) * 1); }
+.view-enter .kpi-grid > :nth-child(3),
+.view-enter .dashboard-grid > :nth-child(3) { animation-delay: calc(var(--stagger) * 2); }
+.view-enter .kpi-grid > :nth-child(4),
+.view-enter .dashboard-grid > :nth-child(4) { animation-delay: calc(var(--stagger) * 3); }
+
+/* El título recibe el foco al navegar (RNF-045) para lectores de pantalla; no es un control,
+   así que no se dibuja el anillo de foco sobre él. */
+h1[tabindex="-1"]:focus,
+h1[tabindex="-1"]:focus-visible,
+main[tabindex="-1"]:focus,
+main[tabindex="-1"]:focus-visible { outline: none; }
+
+/* Carga de sección con la barra de marca sobre el esqueleto */
+.loading-brand { display: grid; gap: var(--space-4); }
+.loading-brand .brand-bar { width: min(240px, 50%); }
+
+/* =====================================================================
+   8. Breakpoints de las piezas de marca (mobile first)
+   ===================================================================== */
+@media (min-width: 640px) {
+  .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .plans { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 900px) {
+  .site__nav { display: flex; }
+  .hero { padding-block: var(--space-10) var(--space-12); }
+  .feature-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .section { padding-block: calc(var(--space-12) * 1.75); }
+
+  .auth-split { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+  .auth-brand { align-content: center; padding: var(--space-12) clamp(var(--space-8), 5vw, calc(var(--space-12) * 2)); gap: var(--space-6); }
+  .auth-brand__modules { display: grid; }
+  .auth-panel { padding: var(--space-12) var(--space-8); }
+}
+
+@media (max-width: 899.98px) {
+  /* En móvil el panel de marca es una cabecera compacta: el formulario queda a mano */
+  .auth-brand { padding-block: var(--space-5) var(--space-6); gap: var(--space-3); }
+  .auth-brand__logo { width: min(240px, 70%); }
+  .auth-brand .brand-bg__blob--1 { width: 260px; height: 260px; left: -170px; bottom: -190px; opacity: 0.35; }
+  .auth-brand .brand-bg__blob--2 { width: 220px; height: 220px; right: -120px; top: -110px; opacity: 0.3; }
+  .auth-brand__text,
+  .auth-brand__modules { display: none; }
+  .auth-card__mark { display: none; }
+}
+
+/* =====================================================================
+   9. Movimiento reducido: todo aparece ya montado y quieto (RNF-047)
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after { animation-delay: 0s !important; }
+  .brand-logo--animate .brand-logo__pc--ring { --sweep: 360deg; -webkit-mask: none; mask: none; }
+  .brand-logo__pulse,
+  .brand-logo__halo,
+  .live-dot::after { display: none; }
+  .on-scroll { opacity: 1; transform: none; }
+  .brand-bg__grid { animation: none; }
+}

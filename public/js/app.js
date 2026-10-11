@@ -7,12 +7,13 @@
 import { auth, configureApi } from './services/api.js';
 import { h } from './lib/dom.js';
 import { flush, onPendingChange, pending } from './lib/offline-queue.js';
-import { currentPath, navigate, resolve, startRouter } from './lib/router.js';
+import { currentPath, navigate, parseHash, resolve, startRouter } from './lib/router.js';
 import { session } from './lib/store.js';
 import { appShell } from './components/layout/AppShell.js';
 import { page } from './components/layout/Page.js';
 import { card } from './components/ui/Card.js';
 import { emptyState, errorState, loadingState } from './components/ui/StateView.js';
+import { brandBackground } from './components/brand/BrandBackground.js';
 import { routes } from './routes.js';
 
 const app = document.getElementById('app');
@@ -22,8 +23,10 @@ let firstRender = true;
 /* ---------- Pantallas sin AppShell ---------- */
 
 function fullScreen(...children) {
-  app.replaceChildren(h('main', { class: 'boot', id: 'contenido', tabindex: '-1' },
-    h('img', { class: 'boot__logo', src: 'assets/brand/simbolo.png', alt: '', width: 64, height: 64 }),
+  app.replaceChildren(h('main', { class: 'splash', id: 'contenido', tabindex: '-1' },
+    brandBackground(),
+    h('div', { class: 'splash__symbol' },
+      h('img', { src: 'assets/brand/simbolo.png', alt: '', width: 64, height: 64 })),
     ...children));
 }
 
@@ -95,7 +98,8 @@ async function renderRoute(decision) {
     }
   }
 
-  const isPublic = Boolean(route?.public) && !session.isAuthenticated;
+  const isPublic = Boolean(route?.site) || (Boolean(route?.public) && !session.isAuthenticated);
+  if (isPublic) shell = null;
   const target = isPublic ? null : ensureShell();
   const container = isPublic ? app : target.main;
   target?.setActive(currentPath());
@@ -108,7 +112,9 @@ async function renderRoute(decision) {
   } else {
     if (!isPublic) {
       container.setAttribute('aria-busy', 'true');
-      container.replaceChildren(loadingState({ label: 'Cargando la sección…', lines: 4 }));
+      container.replaceChildren(h('div', { class: 'loading-brand' },
+        h('div', { class: 'brand-bar', 'aria-hidden': 'true' }),
+        loadingState({ label: 'Cargando la sección…', lines: 4 })));
     }
     try {
       const mod = await loader();
@@ -129,7 +135,10 @@ async function renderRoute(decision) {
 
   if (isPublic) {
     app.replaceChildren(result.node);
+    window.scrollTo({ top: 0 });
   } else {
+    // Entrada sutil de la vista y escalonado de KPI y tarjetas (RNF-047)
+    result.node.classList.add('view-enter');
     container.replaceChildren(result.node);
   }
   document.title = `${result.title} · Pyme Hub`;
@@ -198,6 +207,8 @@ async function restoreSession() {
     return true;
   } catch (error) {
     if (error.code === 'PH-AUTH-002') return true; // sin sesión: se muestra el acceso
+    // El sitio público no depende de la API: si no responde, se muestra igualmente
+    if (parseHash().path === '/') return true;
     fullScreen(
       errorState({
         error,

@@ -4,7 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Pyme Hub</title>
-  <meta name="description" content="Pyme Hub: bienestar, formación e IA para cuidar al equipo de tu pyme.">
+  <meta name="description" content="Pyme Hub: bienestar, formación e IA para cuidar, formar y retener al equipo de tu pyme. Talento que impulsa tu negocio.">
+  <meta property="og:title" content="Pyme Hub · Talento que impulsa tu negocio">
+  <meta property="og:description" content="Bienestar, formación e inteligencia artificial, por fin al alcance de cualquier pyme.">
+  <meta property="og:type" content="website">
   <meta name="theme-color" content="#22C55E">
   <meta name="color-scheme" content="light">
 
@@ -22,6 +25,7 @@
   <link rel="stylesheet" href="styles/tokens.css">
   <link rel="stylesheet" href="styles/globals.css">
   <link rel="stylesheet" href="styles/responsive.css">
+  <link rel="stylesheet" href="styles/brand.css">
 
   <link rel="modulepreload" href="js/services/api.js">
   <script type="module" src="js/app.js"></script>
@@ -29,8 +33,16 @@
 <body>
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
   <div id="app">
-    <div class="boot" role="status">
-      <img class="boot__logo" src="assets/brand/simbolo.png" alt="" width="64" height="64">
+    <!-- Pantalla de arranque con la línea de la landing (se sustituye al cargar la vista) -->
+    <div class="splash" role="status">
+      <div class="brand-bg" aria-hidden="true">
+        <div class="brand-bg__grid"></div>
+        <div class="brand-bg__blob brand-bg__blob--1"></div>
+        <div class="brand-bg__blob brand-bg__blob--2"></div>
+        <div class="brand-bg__blob brand-bg__blob--3"></div>
+      </div>
+      <div class="splash__symbol"><img src="assets/brand/simbolo.png" alt="" width="64" height="64"></div>
+      <div class="brand-bar" aria-hidden="true"></div>
       <p>Cargando Pyme Hub…</p>
     </div>
   </div>

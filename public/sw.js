@@ -6,7 +6,7 @@
  * - Nunca cachea la API ni recursos de otros orígenes (datos personales, sesión).
  * Al publicar una versión nueva, sube VERSION para limpiar las cachés anteriores.
  */
-const VERSION = 'v0.1.0';
+const VERSION = 'v0.2.0';
 const CACHE = `pymehub-${VERSION}`;
 
 const SHELL = [
@@ -16,6 +16,7 @@ const SHELL = [
   'styles/tokens.css',
   'styles/globals.css',
   'styles/responsive.css',
+  'styles/brand.css',
   'js/app.js',
   'js/routes.js',
   'js/services/api.js',
@@ -39,6 +40,7 @@ const SHELL = [
   'js/components/ui/Icon.js',
   'js/components/ui/StateView.js',
   'js/components/ui/Toast.js',
+  'js/components/brand/BrandBackground.js',
   'assets/icons/sprite.svg',
   'assets/brand/simbolo.png',
   'assets/brand/logo.png',

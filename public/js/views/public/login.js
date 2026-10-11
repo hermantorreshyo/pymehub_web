@@ -17,6 +17,9 @@ export default function loginView({ query }) {
   const form = h('form', { class: 'form', novalidate: true },
     textField({ name: 'email', label: 'Email', type: 'email', value: query.email ?? '', required: true, attrs: { autocomplete: 'username', inputmode: 'email' } }),
     passwordField({ name: 'password', label: 'Contraseña', autocomplete: 'current-password' }),
+    h('details', { class: 'auth-help small' },
+      h('summary', { text: '¿Has olvidado tu contraseña?' }),
+      h('p', { class: 'muted', text: 'Pide a la gerencia o a RR. HH. de tu empresa un enlace nuevo para crearla de nuevo.' })),
     submit);
 
   form.addEventListener('submit', async (event) => {
@@ -56,7 +59,11 @@ export default function loginView({ query }) {
     node: authLayout({
       title: 'Te damos la bienvenida',
       intro: 'Entra para ver cómo evoluciona tu equipo.',
-      children: [notice, form],
+      children: [
+        notice,
+        form,
+        h('p', { class: 'auth-note small muted', text: '¿Aún no tienes cuenta? Tu empresa te enviará una invitación por enlace.' }),
+      ],
     }),
   };
 }

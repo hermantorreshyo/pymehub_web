@@ -5,7 +5,18 @@ Frontend del MVP de **Pyme Hub** (TFM EUDE Business School): una PWA en HTML, CS
 - Requisitos: [`docs/requisitos/PYMEHUB_MVP_REQUERIMIENTOS_TECNICOS.md`](docs/requisitos/PYMEHUB_MVP_REQUERIMIENTOS_TECNICOS.md) (§13: frontend).
 - Reglas de maquetación: [`docs/diseno/PymeHub_Manual_Maquetacion_HTML_CSS_v1.0.md`](docs/diseno/PymeHub_Manual_Maquetacion_HTML_CSS_v1.0.md).
 - Contrato de la API: `pymehub_api/docs/openapi.yaml`.
+- Prompt maestro para continuar el desarrollo con IA: [`docs/PROMPT_MAESTRO.md`](docs/PROMPT_MAESTRO.md).
+- Índice de la documentación: [`docs/README.md`](docs/README.md).
 - Cambios: [`CHANGELOG.md`](CHANGELOG.md).
+
+## Qué ve cada visitante
+
+| Dirección | Pantalla |
+|---|---|
+| `https://pymehub.hermantorres.com/` (`#/`) | **Sitio web público** con la línea de la *landing*: presentación, módulos, privacidad, planes y el botón **Acceso usuarios** |
+| `#/acceso` | Acceso en pantalla partida: panel de marca con el logotipo animado y formulario |
+| `#/invitacion/{token}` | Activación de la cuenta desde el enlace de invitación |
+| `#/inicio` y resto | Aplicación (AppShell) según el perfil y el plan; la PWA instalada arranca aquí |
 
 ## Estructura
 
@@ -17,19 +28,22 @@ public/                      ← DocumentRoot
 ├── .htaccess                ← CSP, cabeceras de seguridad y caché
 ├── assets/
 │   ├── brand/               ← logotipo, símbolo, favicons e iconos de la app (RF-064)
+│   │   └── logo-anim/       ← piezas del logotipo para la animación (y variantes claras)
 │   └── icons/sprite.svg     ← iconos: subconjunto de Lucide, una sola familia (RNF-046)
 ├── styles/
 │   ├── tokens.css           ← único sitio con colores, radios, sombras y espacios (RNF-034)
 │   ├── globals.css          ← base, tipografía y componentes de interfaz
-│   └── responsive.css       ← AppShell, rejillas y breakpoints (mobile first)
+│   ├── responsive.css       ← AppShell, rejillas y breakpoints (mobile first)
+│   └── brand.css            ← lenguaje visual de la landing: logo animado, fondo, sitio, acceso, movimiento
 └── js/
     ├── config.example.js    ← se copia como config.js (no versionado)
     ├── app.js               ← arranque, sesión y pintado de rutas
     ├── routes.js            ← tabla de rutas por perfil y funcionalidad
     ├── services/api.js      ← único punto de acceso a la API (RNF-032)
     ├── lib/                 ← dom (sin innerHTML), escape, formato, router, store, cola offline
-    ├── components/          ← layout/, dashboard/, ui/
-    └── views/               ← public/, admin/, management/, employee/, shared/
+    ├── components/          ← brand/ (AnimatedLogo, BrandBackground), layout/, dashboard/, ui/
+    └── views/               ← public/ (sitio, acceso, invitación), admin/, management/, employee/, shared/
+docs/                        ← requisitos, diseño (manuales, mockups, landing), anexos y prompt maestro
 tools/generar_kit_marca.ps1  ← regenera el kit de iconos a partir del logotipo PNG
 ```
 
@@ -83,4 +97,5 @@ La CSP de `.htaccess` detecta los hosts `*.localhost` y permite conectar con la 
 - El riesgo y el bienestar se muestran con texto e icono (`levelBadge()`), nunca solo con color.
 - Los menús salen de `perfil` y `features` de `/v1/auth/me` (`lib/navigation.js`); la API es quien controla el acceso.
 - Antes de cada commit: revisar a 390 × 844, 768 × 1024 y 1440 × 900, con teclado y con `prefers-reduced-motion`; consola sin errores contra la API local; `CHANGELOG.md` actualizado.
+- Las animaciones de marca (logotipo, fondo, entradas) viven en `styles/brand.css` y se desactivan con `prefers-reduced-motion` (RNF-047).
 - Al publicar una versión, sube `VERSION` en `public/sw.js` para renovar la caché de la PWA.
