@@ -2,6 +2,15 @@
 
 Formato basado en *Keep a Changelog*; versiones SemVer.
 
+## [0.3.1] · 2026-10-12
+
+Solo documentación. No hay cambios en la aplicación.
+
+### Documentación
+- Requisitos técnicos v0.9.1, igual que en `pymehub_api`:
+  - compatibilidad con MariaDB 11.8 en producción (`DEC-05`);
+  - rutas reales del VPS: `/var/www/hermantorres/eude/pymehub/pymehub_web`, con DocumentRoot en `public/`.
+
 ## [0.3.0] · 2026-10-11
 
 ### Añadido
