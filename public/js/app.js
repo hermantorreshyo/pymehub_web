@@ -15,6 +15,7 @@ import { card } from './components/ui/Card.js';
 import { emptyState, errorState, loadingState } from './components/ui/StateView.js';
 import { brandBackground } from './components/brand/BrandBackground.js';
 import { routes } from './routes.js';
+import { toast } from './components/ui/Toast.js';
 
 const app = document.getElementById('app');
 let shell = null;          // { root, main, banner, setActive, key }
@@ -164,8 +165,24 @@ async function updateConnectionBanner() {
 window.addEventListener('offline', updateConnectionBanner);
 window.addEventListener('online', async () => {
   updateConnectionBanner();
-  if (session.isAuthenticated) await flush().catch(() => {});
+  if (!session.isAuthenticated) return;
+  // Si se abrió sin conexión, se verifica ahora la sesión real antes de enviar la cola
+  if (session.offline) {
+    try {
+      session.set(await auth.me());
+    } catch {
+      return; // sesión caducada: el evento ph:sesion-caducada lleva al acceso
+    }
+  }
+  await sendPending();
 });
+
+/** Reenvía la cola sin conexión y avisa de lo enviado (RF-062, RF-063). */
+async function sendPending() {
+  const { sent = 0, failed = [] } = await flush().catch(() => ({}));
+  if (sent > 0) toast(sent === 1 ? 'Hemos enviado lo que guardaste sin conexión.' : `Hemos enviado ${sent} registros que guardaste sin conexión.`);
+  if (failed.length) toast('Un registro guardado sin conexión no se ha podido enviar. Vuelve a hacerlo, por favor.', { tone: 'error' });
+}
 onPendingChange(updateConnectionBanner);
 
 window.addEventListener('ph:sesion-caducada', () => {
@@ -194,9 +211,10 @@ document.addEventListener('click', (event) => {
 
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator) || !window.isSecureContext) return;
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch((error) => console.warn('Service worker no registrado', error));
-  });
+  const register = () => navigator.serviceWorker.register('sw.js').catch((error) => console.warn('Service worker no registrado', error));
+  // El arranque es asíncrono: si la página ya terminó de cargar, el evento 'load' no volverá a llegar
+  if (document.readyState === 'complete') register();
+  else window.addEventListener('load', register, { once: true });
 }
 
 /* ---------- Arranque ---------- */
@@ -207,6 +225,11 @@ async function restoreSession() {
     return true;
   } catch (error) {
     if (error.code === 'PH-AUTH-002') return true; // sin sesión: se muestra el acceso
+    // Sin cobertura: se abre con el último perfil conocido para poder hacer el check-in (RF-062)
+    if (error.code === 'PH-NET-001' && session.cached()) {
+      session.set({ ...session.cached(), offline: true });
+      return true;
+    }
     // El sitio público no depende de la API: si no responde, se muestra igualmente
     if (parseHash().path === '/') return true;
     fullScreen(
@@ -229,6 +252,7 @@ async function boot() {
   }
   configureApi(config);
   if (!(await restoreSession())) return;
+  if (session.isAuthenticated && !session.offline && navigator.onLine) sendPending();
   if (!boot.started) {
     boot.started = true;
     registerServiceWorker();

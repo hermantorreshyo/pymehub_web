@@ -1,7 +1,25 @@
 /**
  * Estado de la sesión en memoria: respuesta de GET /v1/auth/me (RF-011).
- * No se guarda nada en localStorage: la sesión vive en la cookie HttpOnly de la API (DEC-06).
+ * La sesión vive en la cookie HttpOnly de la API (DEC-06): aquí no se guarda ningún token.
+ * Para poder abrir la app sin cobertura (RF-062) se recuerda en el dispositivo una copia
+ * mínima del perfil (nombre, perfil, plan y funcionalidades), sin email ni token CSRF;
+ * se borra al cerrar la sesión.
  */
+const OFFLINE_KEY = 'pymehub-perfil';
+
+function remember(value) {
+  try {
+    if (!value) { localStorage.removeItem(OFFLINE_KEY); return; }
+    if (value.offline) return;
+    const minimal = {
+      usuario: { id: value.usuario?.id, nombre: value.usuario?.nombre, apellidos: value.usuario?.apellidos, perfil: value.usuario?.perfil },
+      interlocutor: { id: value.interlocutor?.id, tipo: value.interlocutor?.tipo, nombre: value.interlocutor?.nombre },
+      plan: value.plan ?? null,
+      features: value.features ?? [],
+    };
+    localStorage.setItem(OFFLINE_KEY, JSON.stringify(minimal));
+  } catch { /* almacenamiento no disponible: la app sigue funcionando con conexión */ }
+}
 const listeners = new Set();
 let me = null;
 
@@ -35,8 +53,24 @@ export const session = {
     return Array.isArray(me?.features) && me.features.includes(feature);
   },
 
+  /** Copia mínima del último perfil, para arrancar sin conexión. */
+  cached() {
+    try {
+      const raw = localStorage.getItem(OFFLINE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  },
+
+  /** true si la sesión se ha restaurado sin conexión (aún no verificada con la API). */
+  get offline() {
+    return Boolean(me?.offline);
+  },
+
   set(value) {
     me = value ?? null;
+    remember(me);
     listeners.forEach((fn) => fn(me));
   },
 

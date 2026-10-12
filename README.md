@@ -34,13 +34,15 @@ public/                      ← DocumentRoot
 │   ├── tokens.css           ← único sitio con colores, radios, sombras y espacios (RNF-034)
 │   ├── globals.css          ← base, tipografía y componentes de interfaz
 │   ├── responsive.css       ← AppShell, rejillas y breakpoints (mobile first)
-│   └── brand.css            ← lenguaje visual de la landing: logo animado, fondo, sitio, acceso, movimiento
+│   ├── brand.css            ← lenguaje visual de la landing: logo animado, fondo, sitio, acceso, movimiento
+│   └── modules.css          ← módulos funcionales (Bienestar; después Formación e IA de RR. HH.)
+├── vendor/chartjs/          ← Chart.js 4.4.1 (MIT), servido desde el propio dominio y cargado bajo demanda
 └── js/
     ├── config.example.js    ← se copia como config.js (no versionado)
     ├── app.js               ← arranque, sesión y pintado de rutas
     ├── routes.js            ← tabla de rutas por perfil y funcionalidad
     ├── services/api.js      ← único punto de acceso a la API (RNF-032)
-    ├── lib/                 ← dom (sin innerHTML), escape, formato, router, store, cola offline
+    ├── lib/                 ← dom (sin innerHTML), escape, formato, router, store, cola offline, charts, wellbeing
     ├── components/          ← brand/ (AnimatedLogo, BrandBackground), layout/, dashboard/, ui/
     └── views/               ← public/ (sitio, acceso, invitación), admin/, management/, employee/, shared/
 docs/                        ← requisitos, diseño (manuales, mockups, landing), anexos y prompt maestro

@@ -109,4 +109,14 @@
   --fs-display: clamp(2rem, 1.2rem + 3.6vw, 3.25rem);                 /* titular del sitio público */
   --fs-lead: clamp(1rem, 0.9rem + 0.5vw, 1.15rem);
   --site-max: 1120px;
+
+  /* Gráficos (RNF-043). Orden fijo de series validado para daltonismo (CVD ΔE ≥ 8):
+     1 ánimo · 2 energía · 3 estrés. El índice de bienestar usa la serie 1. */
+  --chart-1: #16A34A;
+  --chart-2: #2563EB;
+  --chart-3: #DB2777;
+  --chart-1-soft: rgba(22, 163, 74, 0.12);
+  --chart-grid: #EEF2F6;
+  --chart-axis: #64748B;
+  --chart-surface: #FFFFFF;
 }

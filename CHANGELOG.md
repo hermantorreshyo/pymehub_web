@@ -2,6 +2,38 @@
 
 Formato basado en *Keep a Changelog*; versiones SemVer.
 
+## [0.3.0] · 2026-10-11
+
+### Añadido
+- **Check-in del empleado** (`#/checkin`, mockup 07 adaptado):
+  - Tres escalas 1–5 con icono y texto (ánimo, energía, estrés) en zonas táctiles grandes y una nota personal cifrada. Se responde en menos de 15 segundos (RF-050, RNF-031, RNF-044).
+  - Si ya respondió hoy, muestra el resumen y deja cambiar la respuesta (RF-051).
+  - Tras enviar, confirmación animada. Con valores bajos aparecen recursos de apoyo, como la Línea 024 con llamada directa (RF-055).
+- **Check-in sin conexión de extremo a extremo** (RF-062, RF-063):
+  - La app abre sin cobertura con el último perfil conocido, que guarda en el dispositivo una copia mínima sin email ni token.
+  - El check-in se guarda en la cola del dispositivo. Al recuperar la señal se verifica la sesión, se envía y se avisa con un mensaje.
+  - Verificado recargando la app sin conexión.
+- **Tu evolución**: índice medio de 30 días con su nivel, medias de ánimo, energía y estrés, racha, gráfico diario y notas recientes (RF-052).
+- **Inicio del empleado**: tarjeta del check-in de hoy, con acceso directo o resumen.
+- **Panel de Bienestar de gestión** (`#/bienestar`, mockups 06 y 08 adaptados a §13.6):
+  - Indicadores de índice, participación, estrés y alertas, y gráficos semanales del índice y de las tres dimensiones.
+  - Comparación de equipos con barra, nivel en texto e icono y filtro por equipo y periodo.
+  - Alertas de equipo que se marcan como gestionadas o descartadas.
+  - Estado propio de anonimato cuando no hay 5 personas (RF-053, RF-054, LEG-002, PH-WB-001).
+- **Inicio de gestión**: el indicador "Índice de bienestar" y la tarjeta "Bienestar de los equipos" con las alertas abiertas usan ya datos reales.
+- `lib/charts.js`: gráficos con Chart.js cargados bajo demanda, colores desde los tokens, tabla accesible alternativa y sin animación si se reduce el movimiento (RNF-043, RNF-045, RNF-047).
+- `lib/wellbeing.js`: escalas, niveles (Bueno, Atención, Bajo) y formato de fechas, compartidos.
+- `styles/modules.css`: estilos de los módulos funcionales.
+- Tokens de gráficos `--chart-1..3`. Su orden fijo está validado para daltonismo (ánimo, energía, estrés).
+- Iconos Lucide nuevos para las escalas, el apoyo y las alertas.
+
+### Cambiado
+- **Chart.js 4.4.1 servido desde el propio dominio** (`vendor/chartjs`, licencia MIT) en lugar de cdnjs. No pesa en la primera carga, funciona sin conexión y la CSP no necesita orígenes externos para scripts (DEC-08, RNF-051, RF-061).
+- **Service worker v0.3.0**: precachea todos los módulos de la app, los estilos, Chart.js y `config.js` si existe, así que cualquier vista abre sin conexión.
+
+### Corregido
+- El service worker no llegaba a registrarse: se esperaba el evento `load`, que ya había pasado cuando termina el arranque asíncrono. Ahora se registra en cuanto la app arranca (RF-061).
+
 ## [0.2.0] · 2026-10-11
 
 ### Añadido

@@ -222,3 +222,20 @@ export const employees = {
   incidents: (id, query, signal) => get(`/v1/employees/${encodeURIComponent(id)}/incidents`, query, signal),
   addIncident: (id, input) => data(request('POST', `/v1/employees/${encodeURIComponent(id)}/incidents`, { json: input })),
 };
+
+/* ---------- Bienestar (§8.6) ---------- */
+export const wellbeing = {
+  /** Check-in del día (RF-050). input: { animo, energia, estres, nota?, fecha? } → { checkin, actualizado, apoyo } */
+  checkin: (input) => data(request('POST', '/v1/me/checkins', { json: input })),
+  /** Historial propio → { data: [...], meta: { hoy, hecho_hoy, medias, racha } } (RF-052) */
+  mine: (days = 30, signal) => get('/v1/me/checkins', { days }, signal),
+  /** Agregado anónimo de la empresa o de un equipo (RF-053) → { data, meta } */
+  summary: (query, signal) => get('/v1/wellbeing/summary', query, signal),
+};
+
+/* ---------- Alertas (§8.4) ---------- */
+export const alerts = {
+  /** query: { status: open|managed|dismissed|all, tipo, page, per_page } → { data, meta } */
+  list: (query, signal) => get('/v1/alerts', query, signal),
+  update: (id, input) => data(request('PATCH', `/v1/alerts/${encodeURIComponent(id)}`, { json: input })),
+};
