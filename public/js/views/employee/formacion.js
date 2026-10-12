@@ -11,7 +11,8 @@ import { button, setLoading } from '../../components/ui/Button.js';
 import { alertBox } from '../../components/ui/Field.js';
 import { icon } from '../../components/ui/Icon.js';
 import { progress } from '../../components/ui/Progress.js';
-import { dataView, emptyState, soonState } from '../../components/ui/StateView.js';
+import { dataView, emptyState } from '../../components/ui/StateView.js';
+import { advisorSection } from './asesor.js';
 import { toast } from '../../components/ui/Toast.js';
 
 /**
@@ -20,17 +21,18 @@ import { toast } from '../../components/ui/Toast.js';
  * la lista se guarda en el dispositivo y los módulos abiertos también (RF-045).
  */
 export default function employeeTrainingView({ query }) {
-  const tab = query.tab === 'catalogo' ? 'catalogo' : 'mia';
+  const tab = ['catalogo', 'asesor'].includes(query.tab) ? query.tab : 'mia';
   const nav = tabs('Secciones de formación', [
     { id: 'mia', label: 'Mi formación', href: href('/formacion'), iconName: 'graduation-cap' },
     { id: 'catalogo', label: 'Catálogo', href: href('/formacion', { tab: 'catalogo' }), iconName: 'library' },
+    { id: 'asesor', label: 'Asesor', href: href('/formacion', { tab: 'asesor' }), iconName: 'sparkles' },
   ], tab);
 
   return page({
     title: 'Formación',
     subtitle: 'Módulos de 3 a 5 minutos para aprender en el móvil, cuando te venga bien.',
     tabs: nav,
-    children: [h('div', { class: 'cq' }, tab === 'catalogo' ? catalogSection(query) : mySection())],
+    children: [h('div', { class: 'cq' }, tab === 'catalogo' ? catalogSection(query) : tab === 'asesor' ? advisorSection() : mySection())],
   });
 }
 
@@ -113,17 +115,17 @@ function assignmentItem(a, hoy, index) {
       h('span', { class: 'visually-hidden', text: `: ${a.modulo.titulo}` })));
 }
 
-/** Asesor de formación con IA: llega en la fase 6 (§12). */
+/** Acceso al asesor de formación (§12). */
 function advisorCard() {
   return card({
     title: 'Tu asesor de formación',
     iconName: 'sparkles',
     className: 'advisor-card',
-    body: soonState({
-      title: 'Muy pronto te recomendará por dónde seguir.',
-      text: 'Le contarás qué te interesa y cuánto tiempo tienes, y te propondrá módulos del catálogo explicándote por qué.',
-      iconName: 'sparkles',
-    }),
+    body: h('div', { class: 'stack advisor-teaser' },
+      h('span', { class: 'advisor-teaser__icon', 'aria-hidden': 'true' }, icon('sparkles', { size: 'lg' })),
+      h('p', { class: 'advisor-teaser__lead', text: '¿No sabes por dónde seguir?' }),
+      h('p', { class: 'muted', text: 'Cuéntanos qué te interesa y cuánto tiempo tienes, y te propondremos módulos del catálogo explicándote por qué.' }),
+      h('a', { class: 'btn btn--primary btn--block', href: href('/formacion', { tab: 'asesor' }) }, icon('sparkles'), h('span', { text: '¿Qué me conviene aprender?' }))),
   });
 }
 

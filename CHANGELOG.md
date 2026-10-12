@@ -2,6 +2,28 @@
 
 Formato basado en *Keep a Changelog*; versiones SemVer.
 
+## [0.5.0] · 2026-10-12
+
+Avance 4 · **Asesor de formación con IA** (fase 6, §12). Requiere `pymehub_api` 0.5.0.
+
+### Añadido
+- **Pestaña «Asesor»** en la formación del empleado (`#/formacion?tab=asesor`):
+  - preferencias en menos de 30 segundos: objetivo, temas, minutos a la semana, formato y un comentario opcional con el aviso «No incluyas datos personales ni de salud» (§12.2); si el comentario los lleva, el error aparece en el propio campo (`PH-AI-004`);
+  - 3 a 5 recomendaciones numeradas con su motivo, plan semanal e **inscripción en un toque** (origen `ASESOR_IA`);
+  - etiqueta «Recomendación generada con IA» o «Recomendación automática sin IA» y «¿Cómo funciona?» con los datos que usa y los que no (`IA-018`); los avisos del proveedor se muestran como información, nunca como error (`IA-002`);
+  - valoración útil / no útil; cambiar o borrar las preferencias (`LEG-014`);
+  - sin conexión, muestra las últimas recomendaciones guardadas en el dispositivo.
+- «Mi formación» enlaza al asesor en lugar del aviso de «próximamente».
+- **Gestión** → Formación → Recomendaciones: «Lo que pide tu equipo», demanda formativa agregada con umbral de 5 personas (`IA-021`).
+- **Administración** → Resumen: uso del asesor en 30 días (proveedor, modo, consultas por origen, valoraciones y avisos), sin contenido.
+
+### Cambiado
+- Pestañas más compactas en móvil para que quepan tres secciones.
+- Service worker v0.5.0.
+
+### Documentación
+- Requisitos técnicos v0.9.3, igual que en `pymehub_api`.
+
 ## [0.4.0] · 2026-10-12
 
 Avance 3 · **Formación adaptativa** (fase 5, §10). Requiere `pymehub_api` 0.4.0.

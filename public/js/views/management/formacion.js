@@ -234,8 +234,39 @@ function moduleCard(m, index, reload) {
 
 /* ---------- Recomendaciones (RF-043) ---------- */
 
+/** Demanda formativa agregada (IA-021): lo que la plantilla pide al asesor, sin datos individuales. */
+function demandCard() {
+  return card({
+    title: 'Lo que pide tu equipo',
+    iconName: 'sparkles',
+    body: dataView({
+      load: (signal) => training.demand(signal),
+      lines: 4,
+      render: ({ data: d, meta }) => {
+        if (!d.disponible) {
+          return h('div', { class: 'state state--soon' },
+            h('span', { class: 'state__icon' }, icon('lock', { size: 'lg' })),
+            h('p', { class: 'state__title', text: 'Todavía no hay suficientes respuestas.' }),
+            h('p', { class: 'state__text', text: `Mostramos la demanda cuando al menos ${meta.umbral} personas han indicado sus preferencias en el asesor, para no identificar a nadie.` }));
+        }
+        // Porcentaje sobre las personas con preferencias (los temas admiten varios por persona)
+        const bars = (list, labelOf) => h('ul', { class: 'bar-list', role: 'list' }, list.filter((x) => x.personas > 0).map((x) => h('li', {},
+          progress({ label: `${labelOf(x)} · ${plural(x.personas, 'persona', 'personas')}`, value: Math.round((x.personas / d.personas) * 100) }))));
+        return h('div', { class: 'stack' },
+          h('p', { class: 'small muted', text: `${plural(d.personas, 'persona ha', 'personas han')} indicado sus preferencias. Porcentaje sobre esas personas; solo recuentos: nadie de la empresa ve las preferencias individuales.` }),
+          h('div', { class: 'demand-grid' },
+            h('div', {}, h('h3', { class: 'small-heading', text: 'Objetivos' }), bars(d.objetivos, (x) => x.etiqueta)),
+            h('div', {}, h('h3', { class: 'small-heading', text: 'Temas' }), bars(d.temas, (x) => CATEGORIAS[x.clave]?.label ?? x.clave))),
+          h('p', { class: 'small muted hint-inline' }, icon('lightbulb', { size: 'sm' }), ' Úsalo para decidir qué módulos propios crear. ',
+            d.uso.consultas_30d ? `${plural(d.uso.consultas_30d, 'consulta', 'consultas')} al asesor en 30 días${d.uso.utilidad !== null ? ` · ${d.uso.utilidad} % las valoró útiles` : ''}.` : ''));
+      },
+    }),
+  });
+}
+
 function recommendationsTab() {
   return h('div', { class: 'stack' },
+    demandCard(),
     h('div', { class: 'alert alert--info', role: 'status' }, icon('info'),
       h('div', { class: 'alert__body' },
         h('p', { text: 'Sugerencias por reglas a partir de incidencias, antigüedad y alertas de bienestar del equipo. Nunca usan las respuestas individuales del check-in. Tú decides si asignar.' }))),

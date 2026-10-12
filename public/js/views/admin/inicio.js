@@ -5,6 +5,8 @@ import { session } from '../../lib/store.js';
 import { welcomeHeader } from '../../components/dashboard/WelcomeHeader.js';
 import { kpiCard } from '../../components/dashboard/KPICard.js';
 import { card } from '../../components/ui/Card.js';
+import { badge } from '../../components/ui/Badge.js';
+import { icon } from '../../components/ui/Icon.js';
 import { dataView, emptyState } from '../../components/ui/StateView.js';
 import { table } from '../../components/ui/Table.js';
 
@@ -40,6 +42,38 @@ function render(m) {
     }));
 }
 
+const MODOS = { live: 'En vivo', cache_first: 'Caché primero', offline: 'Sin conexión' };
+
+/** Uso del asesor de IA en los últimos 30 días, sin contenido de ninguna consulta (IA-012). */
+function aiUsageCard() {
+  return card({
+    title: 'Asesor de formación con IA · 30 días',
+    iconName: 'sparkles',
+    body: dataView({
+      load: (signal) => admin.aiUsage(signal),
+      lines: 3,
+      render: ({ data: u }) => {
+        const total = u.consultas || 1;
+        const pct = (n) => `${Math.round((n / total) * 100)} %`;
+        return h('div', { class: 'stack' },
+          h('p', { class: 'ai-provider' },
+            badge(u.proveedor.configurado ? `${u.proveedor.nombre} · ${u.proveedor.modelo}` : 'Sin clave de IA', { tone: u.proveedor.configurado ? 'info' : 'warning', iconName: u.proveedor.configurado ? 'sparkles' : 'lock' }),
+            badge(`Modo: ${MODOS[u.proveedor.modo] ?? u.proveedor.modo}`, { iconName: 'gauge' }),
+            badge(`${formatNumber(u.cache.pregeneradas)} respuestas pregeneradas`, { iconName: 'archive' })),
+          h('ul', { class: 'kpi-grid', role: 'list', 'aria-label': 'Uso del asesor' },
+            kpiCard({ title: 'Consultas', value: formatNumber(u.consultas), note: `${u.empresas.length} empresas`, iconName: 'sparkles', tone: 'info' }),
+            kpiCard({ title: 'Con IA en vivo', value: formatNumber(u.por_origen.live), note: u.consultas ? pct(u.por_origen.live) : null, iconName: 'zap' }),
+            kpiCard({ title: 'Desde caché', value: formatNumber(u.por_origen.cache), note: u.consultas ? pct(u.por_origen.cache) : null, iconName: 'archive', tone: 'info' }),
+            kpiCard({ title: 'Por reglas (sin IA)', value: formatNumber(u.por_origen.reglas), note: u.consultas ? pct(u.por_origen.reglas) : null, iconName: 'list-checks', tone: 'muted' })),
+          h('p', { class: 'small muted hint-inline' }, icon('circle-check', { size: 'sm' }),
+            ` Valoradas útiles: ${formatNumber(u.valoracion.utiles)} · no útiles: ${formatNumber(u.valoracion.no_utiles)}`,
+            u.latencia_media_ms !== null ? ` · latencia media en vivo: ${formatNumber(u.latencia_media_ms)} ms` : '',
+            u.avisos.length ? ` · avisos: ${u.avisos.map((a) => `${a.code} (${a.total})`).join(', ')}` : ''));
+      },
+    }),
+  });
+}
+
 export default function adminHome() {
   const { node: welcome, titleId } = welcomeHeader({
     name: session.me.usuario.nombre,
@@ -49,6 +83,7 @@ export default function adminHome() {
     title: 'Resumen',
     node: h('section', { class: 'page', 'aria-labelledby': titleId },
       welcome,
-      dataView({ loadingLabel: 'Cargando las métricas…', lines: 4, load: (signal) => admin.metrics(signal), render })),
+      dataView({ loadingLabel: 'Cargando las métricas…', lines: 4, load: (signal) => admin.metrics(signal), render }),
+      aiUsageCard()),
   };
 }

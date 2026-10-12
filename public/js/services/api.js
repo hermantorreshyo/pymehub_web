@@ -191,6 +191,8 @@ export const admin = {
   tenants: (signal) => get('/v1/admin/tenants', {}, signal),
   tenant: (id, signal) => data(get(`/v1/admin/tenants/${encodeURIComponent(id)}`, {}, signal)),
   metrics: (signal) => data(get('/v1/admin/metrics', {}, signal)),
+  /** Uso del asesor de IA, sin contenido → { data, meta } */
+  aiUsage: (signal) => get('/v1/admin/ai-usage', { days: 30 }, signal),
 };
 
 export const health = () => data(get('/v1/health'));
@@ -257,6 +259,20 @@ export const training = {
   unassign: (id) => request('DELETE', `/v1/training/assignments/${encodeURIComponent(id)}`),
   /** Recomendaciones por reglas (RF-043) → { data, meta } */
   recommendations: (query, signal) => get('/v1/training/recommendations', query, signal),
+  /** Demanda formativa agregada de la plantilla (IA-021) → { data, meta } */
+  demand: (signal) => get('/v1/training/demand', {}, signal),
+};
+
+/* ---------- Asesor de formación con IA (§8.7, empleado) ---------- */
+export const advisor = {
+  /** → { data: preferencias | null, meta: { opciones } } */
+  preferences: (signal) => get('/v1/me/training/preferences', {}, signal),
+  savePreferences: (input) => request('PUT', '/v1/me/training/preferences', { json: input }),
+  deletePreferences: () => request('DELETE', '/v1/me/training/preferences'),
+  /** → { data: { solicitud_id, servido_desde, generado_con_ia, recomendaciones, plan_semanal }, meta: { aviso? } } */
+  ask: () => request('POST', '/v1/me/training/advisor', { json: {} }),
+  feedback: (solicitudId, util) => data(request('POST', '/v1/me/training/advisor/feedback', { json: { solicitud_id: solicitudId, util } })),
+  enroll: (moduloId, solicitudId) => data(request('POST', '/v1/me/training/enroll', { json: { modulo_id: moduloId, solicitud_id: solicitudId } })),
 };
 
 /* ---------- Formación · empleado ---------- */
