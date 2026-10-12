@@ -29,7 +29,7 @@ const MESSAGES = {
   'PH-VAL-002': 'El archivo tiene filas con errores y no se ha importado ninguna.',
   'PH-RATE-001': 'Vas muy rápido. Espera un momento y vuelve a intentarlo.',
   'PH-WB-001': 'Todavía no hay respuestas suficientes para mostrar el bienestar del equipo sin identificar a nadie.',
-  'PH-TRN-001': 'Este módulo no está asignado a esta persona.',
+  'PH-TRN-001': 'Este módulo no está en tu formación.',
   'PH-TRN-002': 'Ya estás inscrito en este módulo.',
   'PH-AI-001': 'El asistente no está disponible ahora mismo; te mostramos recomendaciones basadas en reglas.',
   'PH-AI-002': 'Has llegado al límite de consultas de hoy; te mostramos recomendaciones basadas en reglas.',
@@ -238,4 +238,36 @@ export const alerts = {
   /** query: { status: open|managed|dismissed|all, tipo, page, per_page } → { data, meta } */
   list: (query, signal) => get('/v1/alerts', query, signal),
   update: (id, input) => data(request('PATCH', `/v1/alerts/${encodeURIComponent(id)}`, { json: input })),
+};
+
+/* ---------- Formación · gestión (§8.5, GERENTE y RRHH) ---------- */
+export const training = {
+  /** Indicadores de la empresa → { data, meta } */
+  summary: (signal) => get('/v1/training/summary', {}, signal),
+  /** query: { category, level, status, puesto, q } → { data: [módulo + uso], meta } */
+  modules: (query, signal) => get('/v1/training/modules', query, signal),
+  module: (id, signal) => data(get(`/v1/training/modules/${encodeURIComponent(id)}`, {}, signal)),
+  createModule: (input) => data(request('POST', '/v1/training/modules', { json: input })),
+  updateModule: (id, input) => data(request('PATCH', `/v1/training/modules/${encodeURIComponent(id)}`, { json: input })),
+  publishModule: (id) => data(request('POST', `/v1/training/modules/${encodeURIComponent(id)}/publish`, { json: {} })),
+  /** query: { modulo_id, equipo_id, employee_id, estado, origen, q, page, per_page } → { data, meta } */
+  assignments: (query, signal) => get('/v1/training/assignments', query, signal),
+  /** input: { modulo_id, usuario_ids?, equipo_id?, fecha_limite? } (RF-042) */
+  assign: (input) => data(request('POST', '/v1/training/assignments', { json: input })),
+  unassign: (id) => request('DELETE', `/v1/training/assignments/${encodeURIComponent(id)}`),
+  /** Recomendaciones por reglas (RF-043) → { data, meta } */
+  recommendations: (query, signal) => get('/v1/training/recommendations', query, signal),
+};
+
+/* ---------- Formación · empleado ---------- */
+export const myTraining = {
+  /** → { data: asignaciones, meta: { pendientes, en_curso, completadas, vencidas, minutos_completados } } */
+  list: (signal) => get('/v1/me/training', {}, signal),
+  catalog: (query, signal) => get('/v1/me/training/catalog', query, signal),
+  enroll: (moduloId) => data(request('POST', '/v1/me/training/enroll', { json: { modulo_id: moduloId } })),
+  get: (id, signal) => get(`/v1/me/training/${encodeURIComponent(id)}`, {}, signal),
+  progressPath: (id) => `/v1/me/training/${encodeURIComponent(id)}/progress`,
+  submitPath: (id) => `/v1/me/training/${encodeURIComponent(id)}/submit`,
+  progress: (id, input) => data(request('POST', `/v1/me/training/${encodeURIComponent(id)}/progress`, { json: input })),
+  submit: (id, input) => data(request('POST', `/v1/me/training/${encodeURIComponent(id)}/submit`, { json: input })),
 };

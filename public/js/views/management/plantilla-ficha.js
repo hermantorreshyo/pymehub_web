@@ -1,4 +1,10 @@
-import { employees } from '../../services/api.js';
+import { employees, training } from '../../services/api.js';
+import { session } from '../../lib/store.js';
+import { categoryBadge, deadlineText, stateBadge, ORIGENES_GESTION } from '../../lib/training.js';
+import { openAssignDialog } from '../../components/training/AssignDialog.js';
+import { button } from '../../components/ui/Button.js';
+import { icon } from '../../components/ui/Icon.js';
+import { progress } from '../../components/ui/Progress.js';
 import { h } from '../../lib/dom.js';
 import { formatDate, formatDateTime, fullName, label, seniority } from '../../lib/format.js';
 import { page } from '../../components/layout/Page.js';
@@ -85,7 +91,45 @@ function render(e) {
           ['Último acceso', e.ultimo_acceso_en ? formatDateTime(e.ultimo_acceso_en) : 'Nunca'],
         ]),
       })),
+    session.hasFeature('formacion') ? trainingCard(e) : null,
     incidentsCard(e.id));
+}
+
+/** Historial formativo de la persona y lo que las reglas recomiendan (RF-043). */
+function trainingCard(e) {
+  const deBaja = Boolean(e.fecha_baja);
+  let view = null;
+  view = dataView({
+    loadingLabel: 'Cargando su formación…',
+    load: async (signal) => {
+      const [list, recos] = await Promise.all([
+        training.assignments({ employee_id: e.id, per_page: 50 }, signal),
+        deBaja ? Promise.resolve({ data: [] }) : training.recommendations({ employee_id: e.id }, signal),
+      ]);
+      return { list: list.data, recos: recos.data };
+    },
+    isEmpty: (r) => r.list.length === 0 && r.recos.length === 0,
+    empty: () => emptyState({ title: 'Sin formación todavía.', text: 'Cuando le asignes un módulo o se inscriba por su cuenta, lo verás aquí.', iconName: 'graduation-cap' }),
+    render: ({ list, recos }) => h('div', { class: 'stack' },
+      recos.length ? h('div', { class: 'reco-inline' },
+        h('p', { class: 'reco-inline__title' }, icon('lightbulb'), h('strong', { text: 'Recomendado por las reglas' })),
+        h('ul', { class: 'reco-list', role: 'list' }, recos.map((r) => h('li', { class: 'reco-list__item reco-list__item--compact' },
+          h('div', { class: 'reco-list__module' },
+            h('span', { class: 'reco-list__title' }, categoryBadge(r.modulo.categoria), h('a', { href: `#/formacion/modulos/${r.modulo.id}`, text: r.modulo.titulo })),
+            h('span', { class: 'small muted', text: r.motivo })),
+          button({ text: 'Asignar', variant: 'secondary', iconName: 'send', onClick: () => openAssignDialog({ modulo: r.modulo, preselected: [e], onDone: () => view.reload() }) }))))) : null,
+      list.length ? table({
+        caption: 'Formación de la persona',
+        columns: [
+          { label: 'Módulo', primary: true, render: (a) => h('div', { class: 'cell-stack' }, h('a', { href: `#/formacion/modulos/${a.modulo.id}`, text: a.modulo.titulo }), h('span', { class: 'small muted', text: ORIGENES_GESTION[a.origen] ?? a.origen })) },
+          { label: 'Estado', render: (a) => stateBadge(a.estado) },
+          { label: 'Avance', render: (a) => progress({ label: a.mejor_nota !== null ? `Nota ${a.mejor_nota} %` : 'Avance', value: a.progreso_pct }) },
+          { label: 'Fecha límite', render: (a) => deadlineText(a) },
+        ],
+        rows: list,
+      }) : null),
+  });
+  return card({ title: 'Formación', iconName: 'graduation-cap', body: h('div', { class: 'cq' }, view) });
 }
 
 /** Ficha del empleado (GET /v1/employees/{id}). */

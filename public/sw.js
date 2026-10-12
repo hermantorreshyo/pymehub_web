@@ -7,7 +7,7 @@
  * - Nunca cachea la API ni recursos de otros orígenes (datos personales, sesión).
  * Al publicar una versión nueva, sube VERSION para limpiar las cachés anteriores.
  */
-const VERSION = 'v0.3.0';
+const VERSION = 'v0.4.0';
 const CACHE = `pymehub-${VERSION}`;
 
 const SHELL = [
@@ -39,6 +39,7 @@ const SHELL = [
   'js/components/layout/Page.js',
   'js/components/layout/Sidebar.js',
   'js/components/layout/Topbar.js',
+  'js/components/training/AssignDialog.js',
   'js/components/ui/Avatar.js',
   'js/components/ui/Badge.js',
   'js/components/ui/Button.js',
@@ -59,6 +60,7 @@ const SHELL = [
   'js/lib/offline-queue.js',
   'js/lib/router.js',
   'js/lib/store.js',
+  'js/lib/training.js',
   'js/lib/wellbeing.js',
   'js/routes.js',
   'js/services/api.js',
@@ -67,9 +69,12 @@ const SHELL = [
   'js/views/employee/checkin.js',
   'js/views/employee/formacion.js',
   'js/views/employee/inicio.js',
+  'js/views/employee/modulo.js',
   'js/views/management/bienestar.js',
   'js/views/management/configuracion.js',
   'js/views/management/equipos.js',
+  'js/views/management/formacion-editor.js',
+  'js/views/management/formacion-modulo.js',
   'js/views/management/formacion.js',
   'js/views/management/ia-rrhh.js',
   'js/views/management/inicio.js',

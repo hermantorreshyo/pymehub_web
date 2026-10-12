@@ -1,4 +1,4 @@
-import { alerts, employees, teams, wellbeing } from '../../services/api.js';
+import { alerts, employees, teams, training, wellbeing } from '../../services/api.js';
 import { h } from '../../lib/dom.js';
 import { formatNumber, plural } from '../../lib/format.js';
 import { session } from '../../lib/store.js';
@@ -8,7 +8,8 @@ import { kpiGrid } from '../../components/dashboard/KPIGrid.js';
 import { card } from '../../components/ui/Card.js';
 import { icon } from '../../components/ui/Icon.js';
 import { linkButton } from '../../components/ui/Button.js';
-import { dataView, emptyState, soonState } from '../../components/ui/StateView.js';
+import { dataView, emptyState } from '../../components/ui/StateView.js';
+import { progress } from '../../components/ui/Progress.js';
 import { dec, wellbeingBadge } from '../../lib/wellbeing.js';
 
 /** KPI de un módulo que aún no publica datos: sin cifras inventadas (§13.6). */
@@ -70,6 +71,25 @@ function wellbeingCard() {
   });
 }
 
+/** Formación: recomendaciones pendientes y avance por equipo (RF-043). */
+function trainingCard() {
+  return card({
+    title: 'Formación de los equipos',
+    iconName: 'graduation-cap',
+    actions: linkButton({ text: 'Ver formación', href: '#/formacion', variant: 'tertiary', iconName: 'arrow-right' }),
+    body: dataView({
+      load: async (signal) => (await training.summary(signal)).data,
+      isEmpty: (s) => s.total === 0 && s.recomendaciones === 0,
+      empty: () => emptyState({ title: 'Todavía no hay formación asignada.', text: 'Elige un módulo del catálogo y asígnalo a un equipo.', iconName: 'graduation-cap' }),
+      render: (s) => h('div', { class: 'stack' },
+        s.recomendaciones ? h('a', { class: 'reco-banner', href: '#/formacion?tab=recomendaciones' },
+          icon('lightbulb'), h('span', {}, h('strong', { text: `${s.recomendaciones} recomendaciones` }), ' de formación por siniestros, quejas, acogida o alertas de equipo'), icon('chevron-right')) : null,
+        h('ul', { class: 'bar-list', role: 'list' }, s.por_equipo.map((t) => h('li', {},
+          progress({ label: `${t.nombre} · ${t.completadas}/${t.total}`, value: t.tasa }))))),
+    }),
+  });
+}
+
 function quickLinks() {
   const links = [
     { href: '#/plantilla/nuevo', icon: 'user-plus', text: 'Añadir empleado' },
@@ -123,7 +143,24 @@ export default function managementHome() {
           });
         },
       },
-      { title: 'Avance en formación', iconName: 'graduation-cap', load: pendingKpi('Avance en formación', 'graduation-cap', 'Llega con el módulo de Formación') },
+      {
+        title: 'Avance en formación',
+        iconName: 'graduation-cap',
+        load: async () => {
+          const { data: s } = await training.summary();
+          if (s.tasa_finalizacion === null) return kpiCard({ title: 'Avance en formación', value: 'Sin asignar', note: 'Asigna el primer módulo', iconName: 'graduation-cap', tone: 'muted', href: '#/formacion?tab=catalogo' });
+          return kpiCard({
+            title: 'Avance en formación',
+            value: `${s.tasa_finalizacion} %`,
+            note: s.vencidas ? `${formatNumber(s.vencidas)} ${s.vencidas === 1 ? 'vencida' : 'vencidas'}` : `${formatNumber(s.completadas)} módulos completados`,
+            noteTone: s.vencidas ? 'alert' : 'up',
+            noteIcon: s.vencidas ? 'triangle-alert' : 'circle-check',
+            iconName: 'graduation-cap',
+            tone: 'info',
+            href: '#/formacion',
+          });
+        },
+      },
       completo
         ? { title: 'Alertas de rotación', iconName: 'shield-alert', load: pendingKpi('Alertas de rotación', 'shield-alert', 'Llega con la IA de RR. HH.') }
         : {
@@ -141,11 +178,8 @@ export default function managementHome() {
     h('section', { class: 'stack', 'aria-labelledby': titleId }, welcome, kpis),
     h('div', { class: 'dashboard-grid' },
       teamsCard(),
-      session.hasFeature('bienestar') ? wellbeingCard() : card({
-        title: 'Formación',
-        iconName: 'graduation-cap',
-        body: soonState({ title: 'Estamos preparando este panel.', text: 'Aquí verás el avance de la formación en cuanto se active el módulo.' }),
-      }),
+      session.hasFeature('bienestar') ? wellbeingCard() : null,
+      session.hasFeature('formacion') ? trainingCard() : null,
       quickLinks()));
 
   return { title: 'Inicio', node };

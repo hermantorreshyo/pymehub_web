@@ -35,7 +35,7 @@ public/                      ← DocumentRoot
 │   ├── globals.css          ← base, tipografía y componentes de interfaz
 │   ├── responsive.css       ← AppShell, rejillas y breakpoints (mobile first)
 │   ├── brand.css            ← lenguaje visual de la landing: logo animado, fondo, sitio, acceso, movimiento
-│   └── modules.css          ← módulos funcionales (Bienestar; después Formación e IA de RR. HH.)
+│   └── modules.css          ← módulos funcionales (Bienestar, Formación; después IA de RR. HH.)
 ├── vendor/chartjs/          ← Chart.js 4.4.1 (MIT), servido desde el propio dominio y cargado bajo demanda
 └── js/
     ├── config.example.js    ← se copia como config.js (no versionado)

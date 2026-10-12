@@ -2,6 +2,38 @@
 
 Formato basado en *Keep a Changelog*; versiones SemVer.
 
+## [0.4.0] · 2026-10-12
+
+Avance 3 · **Formación adaptativa** (fase 5, §10). Requiere `pymehub_api` 0.4.0.
+
+### Añadido
+- **Formación del empleado** (`#/formacion`):
+  - «Mi formación»: lo pendiente ordenado por urgencia, con fecha límite, avance y acceso directo; lo completado con su nota; resumen de módulos y minutos.
+  - «Catálogo»: filtros por categoría y búsqueda, «Para tu puesto», módulos propios de la empresa e **inscripción en un toque** (`RF-047`).
+  - Tarjeta del Asesor de formación con IA, que llega en el avance 4.
+- **Reproductor del módulo** (`#/formacion/curso/:id`, mockup 09 adaptado):
+  - objetivos, bloques de uno en uno (texto, lista, consejo clave, ilustración), anillo de progreso y contenido del módulo;
+  - cuestionario final con resultado, repaso de las respuestas y reintentos ilimitados (`RF-041`, `RF-044`).
+- **Formación sin conexión** (`RF-045`, `RF-061`, `RF-062`): la lista y los módulos abiertos se guardan en el dispositivo; el avance y las respuestas van a la cola y se envían al recuperar la señal, sin contar intentos dobles. La copia se borra al cerrar sesión.
+- **Formación para la gestión** (`#/formacion`):
+  - indicadores (formación en marcha, tasa de finalización, vencidas y nota media), avance por equipo y módulos más asignados;
+  - «Seguimiento» por persona con filtros por estado, equipo, módulo y búsqueda;
+  - «Catálogo» con el uso de cada módulo y **diálogo de asignación** a un equipo o a personas concretas con fecha límite (`RF-042`);
+  - «Recomendaciones» por reglas con su motivo y asignación en un clic (`RF-043`).
+- **Ficha de módulo** (`#/formacion/modulos/:id`): contenido, cuestionario con la solución, quién lo cursa; asignar, editar, publicar o archivar los módulos propios.
+- **Editor de módulos propios** (`#/formacion/modulos/nuevo`, `RF-046`): objetivos, bloques y 2–4 preguntas, con los errores de la API en su sitio.
+- La ficha del empleado muestra su formación y lo que recomiendan las reglas.
+- Inicio: indicador «Avance en formación» y tarjeta de formación por equipos (gestión); «Tu formación» con el siguiente módulo (empleado).
+- Ilustraciones de marca por categoría (composición local, sin fotos de stock, `RNF-048`) y 18 iconos más del sprite (Lucide).
+
+### Cambiado
+- Sin sesión previa en el navegador, el sitio público y el acceso ya no consultan `GET /v1/auth/me`: desaparece el 401 de la consola. Las rutas privadas la consultan siempre.
+- Las rejillas de formación se adaptan al ancho del contenedor (*container queries*), porque el AppShell del empleado es más estrecho que el de la gestión.
+- Service worker v0.4.0 con todos los módulos nuevos.
+
+### Documentación
+- Requisitos técnicos v0.9.2, igual que en `pymehub_api`.
+
 ## [0.3.1] · 2026-10-12
 
 Solo documentación. No hay cambios en la aplicación.

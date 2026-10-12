@@ -1,11 +1,13 @@
-import { wellbeing } from '../../services/api.js';
+import { myTraining, wellbeing } from '../../services/api.js';
 import { h } from '../../lib/dom.js';
 import { session } from '../../lib/store.js';
 import { SCALES, levelOf, optionLabel, tone, wellbeingBadge } from '../../lib/wellbeing.js';
 import { welcomeHeader } from '../../components/dashboard/WelcomeHeader.js';
 import { card } from '../../components/ui/Card.js';
 import { icon } from '../../components/ui/Icon.js';
-import { dataView, soonState } from '../../components/ui/StateView.js';
+import { dataView, emptyState } from '../../components/ui/StateView.js';
+import { progress } from '../../components/ui/Progress.js';
+import { deadlineText, minutes, moduleArt, trainingCache } from '../../lib/training.js';
 
 /** Inicio del empleado: pensado para el móvil y el uso con una mano (RNF-031). */
 export default function employeeHome() {
@@ -30,9 +32,15 @@ export default function employeeHome() {
     session.hasFeature('formacion') && card({
       title: 'Tu formación',
       iconName: 'graduation-cap',
-      body: soonState({
-        title: 'Tu formación aparecerá aquí.',
-        text: 'Módulos cortos para aprender en el móvil y un asesor que te recomienda por dónde seguir.',
+      body: dataView({
+        load: async (signal) => {
+          const res = await myTraining.list(signal);
+          trainingCache.set('lista', res);
+          return res;
+        },
+        loadingLabel: 'Cargando tu formación…',
+        lines: 2,
+        render: (res) => trainingSummary(res),
       }),
     }),
   ].filter(Boolean);
@@ -60,4 +68,27 @@ function checkinSummary({ data, meta }) {
         h('span', {}, h('strong', { text: s.short }), ' ', optionLabel(s.name, today[s.name]))))),
     meta.medias ? h('p', { class: 'home-checkin__meta' }, 'Tu media de 30 días: ', h('strong', { text: `${meta.medias.indice}/100` }), ' ', wellbeingBadge(levelOf(meta.medias.indice))) : null,
     h('a', { class: 'btn btn--secondary btn--block', href: '#/checkin' }, icon('activity'), h('span', { text: 'Ver mi evolución' })));
+}
+
+/** Lo siguiente que toca aprender: el módulo más urgente, con un acceso directo. */
+function trainingSummary({ data, meta }) {
+  const next = data.find((a) => a.estado !== 'COMPLETADA');
+  if (!next) {
+    return emptyState({
+      title: data.length ? '¡Formación al día!' : 'Aún no tienes formación asignada.',
+      text: 'Echa un vistazo al catálogo: hay módulos de 3 a 5 minutos sobre conducción, carga, clientes y bienestar.',
+      iconName: 'award',
+      action: h('a', { class: 'btn btn--secondary', href: '#/formacion?tab=catalogo' }, icon('library'), h('span', { text: 'Ver el catálogo' })),
+    });
+  }
+  const pendientes = meta.pendientes + meta.en_curso + meta.vencidas;
+  return h('div', { class: 'home-training' },
+    h('div', { class: 'home-training__next' },
+      moduleArt(next.modulo.categoria, { size: 'sm' }),
+      h('div', {},
+        h('p', { class: 'home-training__title', text: next.modulo.titulo }),
+        h('p', { class: ['small', next.estado === 'VENCIDA' ? 'text-danger' : 'muted'], text: `${deadlineText(next, meta.hoy)} · ${minutes(next.modulo.duracion_min)}` }))),
+    progress({ label: next.progreso_pct ? 'Tu avance' : 'Sin empezar', value: next.progreso_pct }),
+    h('a', { class: 'btn btn--primary btn--block', href: `#/formacion/curso/${next.id}` }, icon(next.progreso_pct ? 'play' : 'book-open'), h('span', { text: next.progreso_pct ? 'Continuar' : 'Empezar ahora' })),
+    h('p', { class: 'small muted', text: pendientes > 1 ? `Tienes ${pendientes} módulos por hacer · ${meta.completadas} completados` : `${meta.completadas} completados hasta ahora` }));
 }

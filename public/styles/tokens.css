@@ -119,4 +119,17 @@
   --chart-grid: #EEF2F6;
   --chart-axis: #64748B;
   --chart-surface: #FFFFFF;
+
+  /* Formación: color por categoría para las ilustraciones de los módulos (RNF-048).
+     La categoría siempre va también como texto e icono (RNF-044). */
+  --cat-conduccion: #2563EB;
+  --cat-conduccion-soft: #DBEAFE;
+  --cat-almacen: #B45309;
+  --cat-almacen-soft: #FEF3C7;
+  --cat-cliente: #7C3AED;
+  --cat-cliente-soft: #EDE9FE;
+  --cat-bienestar: #DB2777;
+  --cat-bienestar-soft: #FCE7F3;
+  --cat-desarrollo: #15803D;
+  --cat-desarrollo-soft: #DCFCE7;
 }

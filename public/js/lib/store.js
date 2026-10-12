@@ -2,14 +2,16 @@
  * Estado de la sesión en memoria: respuesta de GET /v1/auth/me (RF-011).
  * La sesión vive en la cookie HttpOnly de la API (DEC-06): aquí no se guarda ningún token.
  * Para poder abrir la app sin cobertura (RF-062) se recuerda en el dispositivo una copia
- * mínima del perfil (nombre, perfil, plan y funcionalidades), sin email ni token CSRF;
- * se borra al cerrar la sesión.
+ * mínima del perfil (nombre, perfil, plan y funcionalidades), sin email ni token CSRF,
+ * y los módulos de formación abiertos (lib/training.js); todo se borra al cerrar la sesión.
  */
+import { trainingCache } from './training.js';
+
 const OFFLINE_KEY = 'pymehub-perfil';
 
 function remember(value) {
   try {
-    if (!value) { localStorage.removeItem(OFFLINE_KEY); return; }
+    if (!value) { localStorage.removeItem(OFFLINE_KEY); trainingCache.clear(); return; }
     if (value.offline) return;
     const minimal = {
       usuario: { id: value.usuario?.id, nombre: value.usuario?.nombre, apellidos: value.usuario?.apellidos, perfil: value.usuario?.perfil },

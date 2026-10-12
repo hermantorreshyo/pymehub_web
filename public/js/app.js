@@ -220,6 +220,11 @@ function registerServiceWorker() {
 /* ---------- Arranque ---------- */
 
 async function restoreSession() {
+  // Sin sesión previa en este navegador, el sitio público y el acceso no consultan la API:
+  // así no aparece un 401 en la consola en cada visita. Las rutas privadas sí la consultan siempre.
+  const { path } = parseHash();
+  const publicRoute = path.startsWith('/invitacion/') || routes.some((r) => (r.site || r.public) && r.path === path);
+  if (publicRoute && !session.cached()) return true;
   try {
     session.set(await auth.me());
     return true;
