@@ -1,4 +1,4 @@
-import { alerts, employees, teams, training, wellbeing } from '../../services/api.js';
+import { alerts, dashboard, employees, teams, training, wellbeing } from '../../services/api.js';
 import { h } from '../../lib/dom.js';
 import { formatNumber, plural } from '../../lib/format.js';
 import { session } from '../../lib/store.js';
@@ -11,11 +11,6 @@ import { linkButton } from '../../components/ui/Button.js';
 import { dataView, emptyState } from '../../components/ui/StateView.js';
 import { progress } from '../../components/ui/Progress.js';
 import { dec, wellbeingBadge } from '../../lib/wellbeing.js';
-
-/** KPI de un módulo que aún no publica datos: sin cifras inventadas (§13.6). */
-function pendingKpi(title, iconName, note) {
-  return async () => kpiCard({ title, value: 'Sin datos aún', note, iconName, tone: 'muted' });
-}
 
 function teamsCard() {
   return card({
@@ -162,7 +157,24 @@ export default function managementHome() {
         },
       },
       completo
-        ? { title: 'Alertas de rotación', iconName: 'shield-alert', load: pendingKpi('Alertas de rotación', 'shield-alert', 'Llega con la IA de RR. HH.') }
+        ? {
+          title: 'Alertas de rotación',
+          iconName: 'shield-alert',
+          load: async () => {
+            const { data: o } = await dashboard.overview();
+            const abiertas = o.alertas_riesgo_abiertas ?? 0;
+            return kpiCard({
+              title: 'Alertas de rotación',
+              value: formatNumber(abiertas),
+              note: `${plural(o.riesgo?.alto ?? 0, 'persona', 'personas')} en riesgo alto`,
+              noteTone: abiertas ? 'alert' : null,
+              noteIcon: abiertas ? 'triangle-alert' : null,
+              iconName: 'shield-alert',
+              tone: abiertas ? 'warning' : 'success',
+              href: '#/ia-rrhh',
+            });
+          },
+        }
         : {
           title: 'Equipos',
           iconName: 'map-pin',

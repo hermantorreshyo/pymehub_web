@@ -41,6 +41,7 @@ export const routes = [
   { path: '/formacion/modulos/:id', feature: 'formacion', views: { gestion: () => import('./views/management/formacion-modulo.js') } },
   // Sin `feature`: en plan Entrada muestra la vista informativa del plan Completo (RF-012)
   { path: '/ia-rrhh', views: { gestion: () => import('./views/management/ia-rrhh.js') } },
+  { path: '/ia-rrhh/metodologia', views: { gestion: () => import('./views/management/ia-rrhh-metodologia.js') } },
   { path: '/plantilla', views: { gestion: () => import('./views/management/plantilla.js') } },
   { path: '/plantilla/nuevo', views: { gestion: () => import('./views/management/plantilla-nuevo.js') } },
   { path: '/plantilla/equipos', views: { gestion: () => import('./views/management/equipos.js') } },

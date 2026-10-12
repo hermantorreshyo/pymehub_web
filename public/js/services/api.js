@@ -287,3 +287,30 @@ export const myTraining = {
   progress: (id, input) => data(request('POST', `/v1/me/training/${encodeURIComponent(id)}/progress`, { json: input })),
   submit: (id, input) => data(request('POST', `/v1/me/training/${encodeURIComponent(id)}/submit`, { json: input })),
 };
+
+/* ---------- IA de RR. HH. (§9, GERENTE y RRHH) ---------- */
+export const dashboard = {
+  /** Indicadores de la empresa (RF-030). El bloque `riesgo` solo llega con el plan Completo → { data, meta } */
+  overview: (signal) => get('/v1/dashboard/overview', {}, signal),
+  /** Serie mensual: altas, bajas, rotación, ausencias y riesgo medio → { data, meta } */
+  trends: (months, signal) => get('/v1/dashboard/trends', { months }, signal),
+};
+
+export const risk = {
+  /** Ranking por puntuación (RF-031). query: { team_id, level, q } → { data, meta } */
+  list: (query, signal) => get('/v1/risk', query, signal),
+  /** Ficha de riesgo explicada (RF-034). Cada consulta queda auditada (LEG-004) → { data, meta } */
+  employee: (id, signal) => get(`/v1/employees/${encodeURIComponent(id)}/risk`, {}, signal),
+  /** Recálculo bajo demanda: una vez cada 10 minutos por empresa */
+  recalculate: () => data(request('POST', '/v1/risk/recalculate', { json: {} })),
+  methodology: (signal) => data(get('/v1/risk/methodology', {}, signal)),
+  /** Revisión de sesgos por grupos (LEG-015) */
+  bias: (signal) => data(get('/v1/risk/bias', {}, signal)),
+};
+
+/* ---------- Línea base de impacto (RF-037) ---------- */
+export const baseline = {
+  /** → { data: { linea_base, actual, comparacion }, meta: { sugerencia } } */
+  get: (signal) => get('/v1/baseline', {}, signal),
+  save: (input) => request('PUT', '/v1/baseline', { json: input }),
+};

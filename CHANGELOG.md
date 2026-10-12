@@ -2,6 +2,35 @@
 
 Formato basado en *Keep a Changelog*; versiones SemVer.
 
+## [0.6.0] · 2026-10-12
+
+Avance 5 · **IA de RR. HH.** (fase 7, §9). Requiere `pymehub_api` 0.6.0.
+
+### Añadido
+- **IA de RR. HH.** (plan Completo, `#/ia-rrhh`), con cuatro pestañas:
+  - **Panel** (`RF-030`):
+    - indicadores: personas en riesgo alto, rotación a 12 meses, antigüedad media y alertas de rotación abiertas;
+    - alertas de rotación gestionables (marcar como gestionada o descartar, `LEG-005`);
+    - distribución por nivel con «Recalcular ahora»;
+    - tendencias de 6 meses con Chart.js y tabla accesible;
+    - impacto frente a la línea base (`RF-037`) y comprobación retrospectiva de las bajas voluntarias.
+  - **Por persona** (`RF-031`): ranking con puntuación, nivel en texto e icono (`RNF-044`), factores principales y filtros por nivel, equipo y nombre.
+  - **Sesgos** (`LEG-015`): niveles por equipo, puesto, turno y contrato, con los grupos que hay que revisar.
+  - **Metodología** (`#/ia-rrhh/metodologia`, `RF-034`): niveles, factores con condición, puntos, evidencia y fuentes, lo que no se usa y por qué, limitaciones y referencias.
+- **Ficha del empleado**: tarjeta «Riesgo de rotación» con puntuación, factores en lenguaje llano con evidencia y fuentes, alerta abierta, evolución y «¿De dónde sale esto?». Siempre con el aviso de supervisión humana.
+- **Configuración**: formulario de la **línea base de impacto** con el periodo sugerido (los 12 meses anteriores al alta) y la comparación. En el plan Entrada se indica que es del plan Completo.
+- **Inicio de gestión**: el indicador «Alertas de rotación» muestra datos reales en lugar de «Sin datos aún».
+- `lib/risk.js`: piezas comunes del riesgo (medidor, factores, chips, aviso de supervisión y comparación con la línea base).
+- Iconos `scale`, `list-ordered` y `history` en el sprite.
+
+### Cambiado
+- El plan Entrada conserva la vista informativa del plan Completo en IA de RR. HH. (`RF-012`).
+- La tabla accesible de cada gráfico queda contenida en su bloque: evita el scroll horizontal en móvil.
+- Service worker v0.6.0 con los módulos nuevos.
+
+### Documentación
+- Requisitos técnicos v0.9.4 y prompt maestro, iguales que en `pymehub_api`.
+
 ## [0.5.0] · 2026-10-12
 
 Avance 4 · **Asesor de formación con IA** (fase 6, §12). Requiere `pymehub_api` 0.5.0.

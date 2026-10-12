@@ -37,7 +37,7 @@ Roles (`usuario.perfil`): `ADMIN` (plataforma, no ve datos de empleados), `GEREN
 
 ## 4. Arquitectura (resumen de decisiones)
 
-- LAMP nativo **sin Docker** en un VPS de Hostinger (Debian 13), Apache 2.4, **PHP 8.4 sin frameworks ni Composer**, **MySQL 8.4 LTS** (nunca sintaxis exclusiva de MariaDB).
+- LAMP nativo **sin Docker** en un VPS de Hostinger (Debian 13), Apache 2.4, **PHP 8.4 sin frameworks ni Composer**, **MariaDB 11.8 LTS en producción o MySQL 8.4 LTS**, con el SQL común a los dos motores (`DEC-05`, `RNF-009`; reglas en el `CLAUDE.md` de la API).
 - Dos repositorios independientes:
   - `pymehub_api` → `https://api.pymehub.hermantorres.com` (solo JSON, `/v1`).
   - `pymehub_web` → `https://pymehub.hermantorres.com` (PWA en HTML, CSS y JavaScript nativo con módulos ES, sin compilación). **Solo consume la API.**
@@ -60,9 +60,9 @@ Roles (`usuario.perfil`): `ADMIN` (plataforma, no ve datos de empleados), `GEREN
 | 3 | Equipos, empleados, CSV, incidencias | Hecho (API 0.2.0, web 0.1.0) |
 | — | Sitio público, acceso en pantalla partida, línea gráfica de la *landing*, documentación | Hecho (web 0.2.0, API 0.2.1) |
 | 4 | Bienestar: check-in (también sin conexión), historial, agregados anónimos, alertas, datos demo | Hecho (API 0.3.0, web 0.3.0) |
-| 5 | Upskilling | Pendiente |
-| 6 | Asesor de formación con IA | Pendiente |
-| 7 | IA de RR. HH. (motor de riesgo v1.1) | Pendiente |
+| 5 | Upskilling: catálogo de 15 módulos, asignación, reproductor con cuestionario (también sin conexión), autoinscripción, recomendaciones por reglas, módulos propios, incidencias y formación en la demo | Hecho (API 0.4.0, web 0.4.0) |
+| 6 | Asesor de formación con IA: preferencias, Mistral con PayloadGuard, caché, modos, respaldo por reglas, valoración, demanda agregada y uso para la plataforma | Hecho (API 0.5.0, web 0.5.0) |
+| 7 | IA de RR. HH.: motor de riesgo v1.1 con puntuación diaria, ranking, ficha explicada y auditada, alertas de rotación, metodología con fuentes, revisión de sesgos, tendencias, retrospectiva y línea base | Hecho (API 0.6.0, web 0.6.0) |
 | 8–10 | PWA completa, operación, resto de datos demo (`cli/demo_seed.php`), cierre y capturas del Anexo D | Pendiente |
 
 Defensa del TFM: **lunes 19 de octubre de 2026**.

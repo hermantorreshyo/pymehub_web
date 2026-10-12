@@ -1,4 +1,6 @@
-import { employees, training } from '../../services/api.js';
+import { employees, risk, training } from '../../services/api.js';
+import { chartBlock } from '../../lib/charts.js';
+import { factorList, scoreMeter, supervisionNote } from '../../lib/risk.js';
 import { session } from '../../lib/store.js';
 import { categoryBadge, deadlineText, stateBadge, ORIGENES_GESTION } from '../../lib/training.js';
 import { openAssignDialog } from '../../components/training/AssignDialog.js';
@@ -91,8 +93,40 @@ function render(e) {
           ['Último acceso', e.ultimo_acceso_en ? formatDateTime(e.ultimo_acceso_en) : 'Nunca'],
         ]),
       })),
+    session.hasFeature('riesgo_rotacion') && !deBaja ? riskCard(e) : null,
     session.hasFeature('formacion') ? trainingCard(e) : null,
     incidentsCard(e.id));
+}
+
+/**
+ * Riesgo de rotación explicado (RF-034): puntuación, nivel en texto e icono, factores en lenguaje
+ * llano con sus fuentes y evolución. Cada consulta queda auditada en la API (LEG-004).
+ */
+function riskCard(e) {
+  return card({
+    title: 'Riesgo de rotación',
+    iconName: 'shield-alert',
+    className: 'risk-card',
+    body: dataView({
+      loadingLabel: 'Calculando su riesgo…',
+      lines: 4,
+      load: (signal) => risk.employee(e.id, signal),
+      render: ({ data: r, meta }) => h('div', { class: 'stack' },
+        h('div', { class: 'risk-head' },
+          scoreMeter(r.puntuacion, r.nivel, { size: 'lg' }),
+          h('p', { class: 'small muted', text: `Calculado el ${formatDate(r.fecha, 'long')} con las reglas ${r.version_reglas}.` }),
+          meta.alerta ? badge(`Alerta de rotación abierta desde el ${formatDate(meta.alerta.creado_en)}`, { tone: 'warning', iconName: 'bell' }) : null),
+        h('h3', { class: 'small-heading', text: 'Qué suma y qué resta' }),
+        factorList(r.factores),
+        r.historico.length > 1 ? chartBlock({
+          label: 'Evolución de la puntuación de riesgo (0–100)',
+          labels: r.historico.map((p) => formatDate(p.fecha)),
+          series: [{ name: 'Puntuación', data: r.historico.map((p) => p.puntuacion), color: 2 }],
+          yMin: 0, yMax: 100, stepY: 25, height: 180,
+        }) : null,
+        supervisionNote()),
+    }),
+  });
 }
 
 /** Historial formativo de la persona y lo que las reglas recomiendan (RF-043). */

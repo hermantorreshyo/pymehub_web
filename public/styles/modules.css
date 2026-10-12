@@ -6,7 +6,7 @@
 /* =====================================================================
    Gráficos (lib/charts.js · RNF-043)
    ===================================================================== */
-.chart { display: grid; gap: var(--space-2); min-width: 0; }
+.chart { position: relative; overflow: hidden; display: grid; gap: var(--space-2); min-width: 0; } /* contiene la tabla accesible oculta */
 .chart__canvas { position: relative; width: 100%; min-height: var(--chart-min-height); height: var(--chart-h, 260px); }
 .chart__canvas canvas { width: 100% !important; }
 
@@ -758,4 +758,70 @@
 /* Pestañas con tres secciones en móvil: caben sin desplazar */
 @media (max-width: 420px) {
   .tabs__link { padding-inline: var(--space-3); gap: 6px; }
+}
+
+/* =====================================================================
+   IA de RR. HH. · riesgo de rotación (§9)
+   El nivel va siempre en texto e icono (RNF-044); el color solo acompaña.
+   ===================================================================== */
+.risk-meter { display: grid; grid-template-columns: auto auto; justify-content: start; align-items: center; gap: var(--space-1) var(--space-3); min-width: 0; }
+.risk-meter__value { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; line-height: 1; }
+.risk-meter__value small { font-size: var(--fs-xs); color: var(--muted); font-weight: 600; }
+.risk-meter__track { grid-column: 1 / -1; display: block; width: 100%; min-width: 96px; height: 6px; border-radius: var(--radius-pill); background: var(--background); overflow: hidden; }
+.risk-meter__fill { display: block; height: 100%; width: var(--w, 0%); border-radius: inherit; background: var(--success); transition: width 0.8s var(--ease-out); }
+.risk-meter--MEDIO .risk-meter__fill { background: var(--warning); }
+.risk-meter--ALTO .risk-meter__fill { background: var(--danger); }
+.risk-meter--lg .risk-meter__value { font-size: var(--fs-kpi); }
+.risk-meter--lg .risk-meter__track { height: 10px; }
+
+.risk-head { display: grid; gap: var(--space-2); justify-items: start; }
+.risk-head p { margin: 0; }
+
+.risk-factors { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.risk-factor { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); align-items: start; padding: var(--space-3); border-radius: var(--radius-md); background: var(--background); }
+.risk-factor__pts { display: inline-grid; place-items: center; min-width: 48px; min-height: 32px; padding: 0 var(--space-2); border-radius: var(--radius-sm); background: var(--danger-soft); color: var(--danger-strong); font-family: var(--font-display); font-weight: 800; }
+.risk-factor--minus .risk-factor__pts { background: var(--primary-soft); color: var(--primary-strong); }
+.risk-factor__body { display: grid; gap: 2px; min-width: 0; font-size: var(--fs-small); }
+.risk-factor__body strong { font-size: var(--fs-body); }
+.risk-factor__meta { font-size: var(--fs-xs); color: var(--muted); }
+.risk-none { display: flex; align-items: center; gap: var(--space-2); margin: 0; color: var(--primary-strong); font-weight: 600; }
+
+.risk-chips { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.risk-chip { display: inline-flex; align-items: center; gap: var(--space-1); padding: 2px var(--space-2); border-radius: var(--radius-pill); background: var(--background); border: 1px solid var(--border); font-size: var(--fs-xs); white-space: nowrap; }
+.risk-chip b { color: var(--danger-strong); }
+.risk-chip--minus b { color: var(--primary-strong); }
+
+.risk-dist { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.risk-dist__item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-2) var(--space-3); align-items: center; }
+.risk-dist__label { display: inline-flex; align-items: center; gap: var(--space-2); color: inherit; text-decoration: none; min-height: var(--touch-target); }
+.risk-dist__label:hover .badge { text-decoration: underline; }
+.risk-dist__value { font-family: var(--font-display); font-weight: 800; font-size: 1.35rem; }
+.risk-dist__value small { font-family: var(--font-ui); font-size: var(--fs-xs); color: var(--muted); font-weight: 600; }
+.risk-dist__bar { grid-column: 1 / -1; height: 8px; border-radius: var(--radius-pill); background: var(--background); overflow: hidden; }
+.risk-dist__fill { display: block; height: 100%; width: var(--w, 0%); border-radius: inherit; background: var(--success); transition: width 0.8s var(--ease-out); }
+.risk-dist__item--MEDIO .risk-dist__fill { background: var(--warning); }
+.risk-dist__item--ALTO .risk-dist__fill { background: var(--danger); }
+
+.baseline { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.baseline__row { display: grid; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-md); background: var(--background); justify-items: start; }
+.baseline__title { font-weight: 600; font-size: var(--fs-small); }
+.baseline__vals { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.baseline__vals > span { display: grid; font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; }
+.baseline__vals small { font-family: var(--font-ui); font-size: var(--fs-xs); font-weight: 600; color: var(--muted); }
+.baseline__vals .icon { color: var(--muted); }
+
+.retro { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.retro li { display: inline-flex; align-items: center; gap: var(--space-2); }
+.retro strong { font-family: var(--font-display); font-size: 1.25rem; }
+
+.risk-note a { font-weight: 600; }
+.sources { display: grid; gap: var(--space-2); margin: 0; padding-left: var(--space-5); font-size: var(--fs-small); color: var(--text-2); }
+.bias-dim + .bias-dim { padding-top: var(--space-2); border-top: 1px solid var(--border); }
+
+@container (min-width: 560px) {
+  .baseline__row { grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .risk-meter__fill, .risk-dist__fill { transition: none; }
 }
