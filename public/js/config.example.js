@@ -7,4 +7,6 @@
  */
 export const config = {
   apiUrl: 'https://api.pymehub.hermantorres.com',
+  // Correo de «Solicitar un piloto gratuito» en la demo comercial (DMO-017)
+  contactEmail: 'info@hyo.company',
 };

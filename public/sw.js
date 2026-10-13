@@ -7,7 +7,7 @@
  * - Nunca cachea la API ni recursos de otros orígenes (datos personales, sesión).
  * Al publicar una versión nueva, sube VERSION para limpiar las cachés anteriores.
  */
-const VERSION = 'v0.6.0';
+const VERSION = 'v0.7.0';
 const CACHE = `pymehub-${VERSION}`;
 
 const SHELL = [

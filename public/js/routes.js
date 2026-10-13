@@ -9,6 +9,8 @@ export const routes = [
 
   // Sin sesión
   { path: '/acceso', public: true, guestOnly: true, view: () => import('./views/public/login.js') },
+  // Alias del acceso para los enlaces de la demo comercial (DMO-012)
+  { path: '/login', public: true, guestOnly: true, view: () => import('./views/public/login.js') },
   { path: '/invitacion/:token', public: true, guestOnly: true, view: () => import('./views/public/invitacion.js') },
 
   // Con sesión

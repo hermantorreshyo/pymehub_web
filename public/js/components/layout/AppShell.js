@@ -26,9 +26,15 @@ export function appShell() {
   const main = h('main', { class: 'main-area', id: 'contenido', tabindex: '-1' });
   const banner = statusBanner();
 
+  // Demo comercial: aviso permanente para que nadie confunda los datos de ejemplo (DMO-024)
+  const demo = session.me?.demo
+    ? h('p', { class: 'demo-ribbon', role: 'note' }, icon('sparkles', { size: 'sm' }),
+      h('span', { text: 'Estás en la demostración de Pyme Hub: datos 100 % ficticios que se restauran cada noche.' }))
+    : null;
+
   const root = h('div', { class: ['app-shell', `app-shell--${grupo}`] },
     grupo === 'empleado' ? null : sidebar(),
-    h('div', { class: 'topbar-area' }, banner, topbar()),
+    h('div', { class: 'topbar-area' }, banner, demo, topbar()),
     main,
     mobileNavigation());
 

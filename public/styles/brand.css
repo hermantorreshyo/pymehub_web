@@ -701,3 +701,63 @@ main[tabindex="-1"]:focus-visible { outline: none; }
   .on-scroll { opacity: 1; transform: none; }
   .brand-bg__grid { animation: none; }
 }
+
+/* =====================================================================
+   Demo comercial: franja y panel «Pruebe Pyme Hub» (REQ_QR_DEMO_COMERCIAL)
+   Mobile first: la mayoría llega escaneando el QR del folleto (DMO-014).
+   ===================================================================== */
+.demo { position: relative; padding-block: var(--space-6) var(--space-10); overflow: hidden; }
+.demo__inner { display: grid; gap: var(--space-5); }
+.demo-strip { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); margin: 0; font-family: var(--font-display); font-weight: 700; font-size: var(--fs-lead); line-height: var(--lh-tight); color: var(--text); }
+.demo-panel { display: grid; gap: var(--space-5); padding: var(--space-4); background: var(--glass); backdrop-filter: blur(6px); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-float); }
+.demo-panel__head { display: grid; gap: var(--space-2); justify-items: start; }
+.demo-panel__head h2 { margin: 0; font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem); font-weight: 800; }
+.demo-panel__head p { margin: 0; color: var(--text-2); }
+.demo-cards { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); }
+.demo-card { display: grid; align-content: start; gap: var(--space-3); min-width: 0; padding: var(--space-4); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); animation: brand-fade-up 0.5s var(--ease-out) both; }
+.demo-card:nth-child(2) { animation-delay: var(--stagger); }
+.demo-card:nth-child(3) { animation-delay: calc(var(--stagger) * 2); }
+.demo-card:nth-child(4) { animation-delay: calc(var(--stagger) * 3); }
+.demo-card--secondary { background: var(--sand); border-style: dashed; }
+.demo-card__head { display: flex; gap: var(--space-3); align-items: center; min-width: 0; }
+.demo-card__head h3 { margin: 0; font-size: var(--fs-h3); }
+.demo-card__head p { margin: 0; }
+.demo-card .btn--block { margin-top: auto; }
+.demo-creds { display: grid; gap: var(--space-2); margin: 0; padding: var(--space-3); border-radius: var(--radius-md); background: var(--background); }
+.demo-cred { display: grid; gap: 2px; }
+.demo-cred dt { font-size: var(--fs-xs); font-weight: 600; color: var(--muted); }
+.demo-cred dd { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin: 0; min-width: 0; }
+.demo-cred code { font-family: var(--font-ui); font-size: var(--fs-body); font-weight: 700; color: var(--text); overflow-wrap: anywhere; min-width: 0; }
+.demo-copy { flex: none; width: var(--touch-target); min-height: var(--touch-target); padding: 0; justify-content: center; color: var(--secondary-strong); }
+.demo-note { display: flex; gap: var(--space-2); align-items: flex-start; margin: 0; font-size: var(--fs-small); color: var(--muted); }
+.demo-note .icon { flex: none; margin-top: 2px; color: var(--primary-strong); }
+.demo-off { display: flex; gap: var(--space-3); align-items: center; padding: var(--space-5); border-radius: var(--radius-md); background: var(--warning-soft); color: var(--warning-strong); }
+.demo-off p { margin: 0; color: var(--text); }
+.demo-terms { display: grid; gap: var(--space-4); justify-items: start; }
+.demo-terms__list { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.demo-terms__list li { display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-1) var(--space-3); border-radius: var(--radius-pill); background: var(--surface); border: 1px solid var(--success-border); font-size: var(--fs-small); font-weight: 600; color: var(--text); }
+.demo-terms__list .icon { color: var(--primary-strong); }
+
+@media (min-width: 768px) {
+  .demo { padding-block: var(--space-10) var(--space-12); }
+  .demo-panel { padding: var(--space-8); }
+  .demo-card { padding: var(--space-5); }
+  .demo-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .demo-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* El plan Entrada, secundario, ocupa una franja horizontal bajo los tres perfiles impresos */
+  .demo-card--secondary { grid-column: 1 / -1; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.7fr) minmax(0, 1fr) auto; align-items: center; gap: var(--space-5); }
+  .demo-card--secondary .btn--block { margin-top: 0; width: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-card { animation: none; }
+}
+
+/* Aviso permanente dentro de la aplicación para las cuentas de la demo */
+.demo-ribbon { display: flex; align-items: center; gap: var(--space-2); margin: 0; padding: var(--space-2) var(--space-4); background: var(--success-tint); border-bottom: 1px solid var(--success-border); color: var(--primary-strong); font-size: var(--fs-small); font-weight: 600; }
+.demo-ribbon .icon { flex: none; }
+
+/* QR del folleto (panel de administración) */
+.qr-range { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
+.qr-range .btn[aria-pressed="true"] { background: var(--secondary-soft); border-color: var(--secondary); color: var(--secondary-strong); }

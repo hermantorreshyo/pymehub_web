@@ -2,6 +2,33 @@
 
 Formato basado en *Keep a Changelog*; versiones SemVer.
 
+## [0.7.0] · 2026-10-13
+
+**Demo comercial y QR del folleto** (`docs/requerimientos/REQ_QR_DEMO_COMERCIAL.md`). Requiere `pymehub_api` 0.7.0.
+
+### Añadido
+- **Ruta `/demo`** en `public/.htaccess` (`DMO-001` a `DMO-003`): 302 temporal y sin caché a `/?modo=demo&utm_source=qr&utm_medium=folleto&utm_campaign=folleto_comercial`. Por HTTP, el 301 a HTTPS y después el 302. No se toca el vhost.
+- **Landing en modo demo** (solo al llegar por `/demo`, `DMO-010` a `DMO-018`):
+  - franja «Pruebe Pyme Hub con una empresa de ejemplo: 48 empleados, 4 equipos y datos ficticios»;
+  - tarjetas de Gerente, RR. HH. y Conductor, y una secundaria del plan Entrada, cada una con correo y contraseña con botón Copiar (`aria-label` y aviso `aria-live`), qué ver y «Entrar como …» con el correo precargado (la contraseña nunca viaja en la URL);
+  - aviso «Datos 100 % ficticios. La demostración se restaura cada noche» y, si la demo está desactivada, «La demostración no está disponible en este momento»;
+  - condiciones del folleto (piloto gratuito de 30 días, desde 15 €/empleado/mes, mensual sin permanencia, soporte en menos de 4 h laborables, 99,5 % de disponibilidad, datos exportables) y «Solicitar un piloto gratuito» (`mailto:` con `contactEmail` de `config.js`);
+  - con sesión abierta, «Ir a mi panel»;
+  - la visita se cuenta una vez con `POST /v1/public/visits`, sin cookies ni almacenamiento, y la URL se limpia con `history.replaceState`;
+  - el pie no menciona el TFM en modo demo.
+- `#/login` como alias de `#/acceso` (`DMO-012`).
+- Aviso permanente en la aplicación para las cuentas demo: «Estás en la demostración de Pyme Hub: datos 100 % ficticios que se restauran cada noche».
+- Mensajes de `PH-DEMO-001` y `PH-DEMO-002`.
+- **Administración** → Resumen: tarjeta **«QR del folleto»** (`DMO-036`) con visitas, porcentaje desde el móvil, entradas en la demo por perfil, visitas por día y por hora, rango «Hoy / 7 días / Desde el inicio» y botón «Actualizar».
+- Icono `copy` en el sprite.
+
+### Cambiado
+- `config.example.js`: `contactEmail` (`info@hyo.company`).
+- Service worker v0.7.0.
+
+### Documentación
+- `docs/requerimientos/REQ_QR_DEMO_COMERCIAL.md` con las notas de implementación, requisitos v0.9.5 y prompt maestro, iguales que en `pymehub_api`.
+
 ## [0.6.0] · 2026-10-12
 
 Avance 5 · **IA de RR. HH.** (fase 7, §9). Requiere `pymehub_api` 0.6.0.

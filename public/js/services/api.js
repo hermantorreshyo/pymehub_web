@@ -35,6 +35,8 @@ const MESSAGES = {
   'PH-AI-002': 'Has llegado al límite de consultas de hoy; te mostramos recomendaciones basadas en reglas.',
   'PH-AI-003': 'No hemos podido generar la respuesta; te mostramos recomendaciones basadas en reglas.',
   'PH-AI-004': 'Tu comentario incluye datos personales (como un email o el nombre de alguien). Quítalos y vuelve a enviarlo.',
+  'PH-DEMO-001': 'Esta acción no está disponible en la demostración: los datos de ejemplo se restauran cada noche.',
+  'PH-DEMO-002': 'La demostración no está disponible en este momento.',
   'PH-SYS-001': 'Algo ha fallado por nuestra parte. Inténtalo de nuevo en unos minutos.',
   'PH-SYS-002': 'El servicio no está disponible en este momento. Inténtalo de nuevo en unos minutos.',
   'PH-SYS-003': 'Pyme Hub está en mantenimiento programado. Volvemos enseguida.',
@@ -72,9 +74,16 @@ export function messageFor(code) {
 let baseUrl = '';
 let csrfToken = null;
 let hadSession = false;
+let contactEmail = null;
 
-export function configureApi({ apiUrl }) {
+export function configureApi({ apiUrl, contactEmail: email = null }) {
   baseUrl = String(apiUrl ?? '').replace(/\/+$/, '');
+  contactEmail = typeof email === 'string' && email.includes('@') ? email : null;
+}
+
+/** Correo de contacto comercial de config.js (DMO-017), o null. */
+export function commercialEmail() {
+  return contactEmail;
 }
 
 function buildUrl(path, query) {
@@ -193,6 +202,16 @@ export const admin = {
   metrics: (signal) => data(get('/v1/admin/metrics', {}, signal)),
   /** Uso del asesor de IA, sin contenido → { data, meta } */
   aiUsage: (signal) => get('/v1/admin/ai-usage', { days: 30 }, signal),
+  /** Métricas del QR del folleto (DMO-035). query: { campaign, from, to } → { data, meta } */
+  campaignMetrics: (query, signal) => get('/v1/admin/campaign-metrics', query, signal),
+};
+
+/* ---------- Público: demo comercial (REQ_QR_DEMO_COMERCIAL) ---------- */
+export const publicApi = {
+  /** ¿Está disponible la demostración? (DMO-037) → { enabled } */
+  demoStatus: (signal) => data(get('/v1/public/demo-status', {}, signal)),
+  /** Cuenta una visita de campaña, sin cookies ni datos personales (DMO-030) */
+  visit: (input) => request('POST', '/v1/public/visits', { json: input, retry: false }),
 };
 
 export const health = () => data(get('/v1/health'));
