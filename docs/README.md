@@ -5,6 +5,7 @@
 | [`PROMPT_MAESTRO.md`](PROMPT_MAESTRO.md) | Prompt maestro para iniciar o retomar el desarrollo con un asistente de IA (igual en ambos repositorios) |
 | [`requisitos/`](requisitos/) | Requisitos técnicos del MVP (fuente de verdad; §13 es el frontend) |
 | [`requerimientos/REQ_QR_DEMO_COMERCIAL.md`](requerimientos/REQ_QR_DEMO_COMERCIAL.md) | Demo comercial: ruta `/demo` del QR del folleto, panel «Pruebe Pyme Hub» y métricas, con notas de implementación |
+| `public/js/views/public/legal.js` | Textos legales (aviso legal, privacidad, términos, cookies, Skills) en `#/legal/…`, alimentados por los parámetros de la plataforma (titular pendiente de constitución). Borradores pendientes de revisión jurídica. El contrato de encargo está en `pymehub_api/docs/legal/` |
 | [`diseno/PymeHub_Manual_Maquetacion_HTML_CSS_v1.0.md`](diseno/PymeHub_Manual_Maquetacion_HTML_CSS_v1.0.md) | Reglas de maquetación obligatorias |
 | [`diseno/Manual_de_Imagen_Corporativa_Pyme_Hub.pdf`](diseno/Manual_de_Imagen_Corporativa_Pyme_Hub.pdf) | Manual de marca: logotipo, paleta, tipografía y voz |
 | [`diseno/mockups/`](diseno/mockups/) | Pantallas de la aplicación aprobadas (referencia visual, no especificación; ver §13.6 de los requisitos) |

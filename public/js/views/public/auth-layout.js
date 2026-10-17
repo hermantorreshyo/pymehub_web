@@ -33,7 +33,12 @@ export function authLayout({ title, intro, children }) {
         h('h1', { id: titleId, tabindex: '-1', text: title }),
         intro ? h('p', { class: 'muted', text: intro }) : null),
       children,
-      h('p', { class: 'auth-footer', text: 'Pyme Hub · Mejores personas, mejores negocios.' })));
+      h('p', { class: 'auth-footer', text: 'Pyme Hub · Mejores personas, mejores negocios.' }),
+      h('nav', { class: 'legal-links auth-footer', 'aria-label': 'Textos legales' },
+        h('a', { href: '#/legal/aviso', text: 'Aviso legal' }),
+        h('a', { href: '#/legal/privacidad', text: 'Privacidad' }),
+        h('a', { href: '#/legal/terminos', text: 'Términos' }),
+        h('a', { href: '#/legal/cookies', text: 'Cookies' }))));
 
   return h('div', { class: 'auth-split' }, brand, panel);
 }

@@ -36,6 +36,7 @@ function admin() {
   return [
     { id: 'inicio', label: 'Resumen', path: '/inicio', icon: 'chart-line' },
     { id: 'empresas', label: 'Empresas', path: '/empresas', icon: 'building' },
+    { id: 'parametros', label: 'Parámetros', path: '/parametros', icon: 'settings' },
   ];
 }
 

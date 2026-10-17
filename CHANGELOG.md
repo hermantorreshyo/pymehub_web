@@ -2,6 +2,40 @@
 
 Formato basado en *Keep a Changelog*; versiones SemVer.
 
+## [0.8.0] · 2026-10-17
+
+**Operación, RGPD, textos legales y precios con IVA.** Requiere `pymehub_api` 0.8.0.
+
+### Añadido
+- **Textos legales** (`#/legal/aviso`, `privacidad`, `terminos`, `cookies`, `skills`), con y sin sesión (`LEG-018`):
+  - los datos del titular salen de los parámetros; mientras la sociedad no esté constituida se muestra «Sociedad en constitución» con el correo de contacto (`LEG-019`);
+  - indican la versión y que están pendientes de revisión jurídica;
+  - enlazados desde el pie de la landing, el acceso, la invitación y «Más».
+- **Precios con IVA** (`LEG-020`), tomados de `GET /v1/public/params` (`lib/params.js`, con valores por defecto si la API no responde):
+  - «15 € + IVA» y «29 € + IVA»;
+  - el pago anual por empleado con «+ IVA» y el descuento si se fija;
+  - la nota «Precios para empresas. IVA (21 %) no incluido.»;
+  - en las condiciones de la demo, «Desde 15 € + IVA por empleado y mes».
+- **Administración**:
+  - **Parámetros**: titular, precios e IVA, suscripciones y baja, Skills y versión legal, con validación por campo;
+  - en **Resumen**, las tarjetas Mantenimiento (activar o programar con aviso de 48 h) y Errores del servidor de 24 h;
+  - en **Empresas**, la columna Acciones con Exportar y Dar de baja (hay que escribir BAJA) o Reactivar, y la fecha de borrado en el estado.
+- **Gestión**:
+  - Configuración → «Tus datos»: exportar los datos de la empresa en ZIP (gerente, no en la demo);
+  - en la ficha de una persona dada de baja, «Suprimir sus datos» (hay que escribir SUPRIMIR).
+- **Todas las personas**:
+  - «Más» → «Descargar mis datos» y «Privacidad y condiciones»;
+  - aviso fijo cuando hay un mantenimiento programado o activo, o cuando la empresa está de baja (con la fecha de borrado).
+- `components/ui/ConfirmDialog.js`: confirmación con `<dialog>` nativo y palabra de seguridad.
+
+### Cambiado
+- Service worker `v0.8.0`, con las vistas nuevas y `lib/params.js` precargados.
+- La invitación enlaza la política de privacidad completa.
+
+### Revisión
+- 390, 768 y 1440 px sin desbordamiento horizontal y con movimiento reducido.
+- Consola sin errores contra la API local; el 422 de la prueba de validación de parámetros es intencionado.
+
 ## [0.7.1] · 2026-10-17
 
 **Instalar la app a voluntad con una URL y un QR.** Requiere `pymehub_api` 0.7.1.

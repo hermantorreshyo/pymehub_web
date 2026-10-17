@@ -32,9 +32,17 @@ export function appShell() {
       h('span', { text: 'Estás en la demostración de Pyme Hub: datos 100 % ficticios que se restauran cada noche.' }))
     : null;
 
+  // Avisos de la plataforma: mantenimiento programado (RNF-063) y empresa de baja (RF-111)
+  const notice = h('p', { class: 'notice-banner', role: 'status', hidden: true });
+  notice.show = (text, iconName = 'clock') => {
+    notice.replaceChildren(icon(iconName, { size: 'sm' }), h('span', { text }));
+    notice.hidden = false;
+  };
+  notice.hide = () => { notice.hidden = true; };
+
   const root = h('div', { class: ['app-shell', `app-shell--${grupo}`] },
     grupo === 'empleado' ? null : sidebar(),
-    h('div', { class: 'topbar-area' }, banner, demo, topbar()),
+    h('div', { class: 'topbar-area' }, banner, notice, demo, topbar()),
     main,
     mobileNavigation());
 
@@ -42,6 +50,7 @@ export function appShell() {
     root,
     main,
     banner,
+    notice,
     /** Marca la sección activa en todas las navegaciones. */
     setActive(path) {
       root.querySelectorAll('[data-nav]').forEach((link) => {

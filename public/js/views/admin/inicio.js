@@ -1,8 +1,10 @@
-import { admin } from '../../services/api.js';
+import { admin, ApiError } from '../../services/api.js';
 import { h } from '../../lib/dom.js';
 import { formatCurrency, formatDateTime, formatNumber, label, todayIso } from '../../lib/format.js';
 import { chartBlock } from '../../lib/charts.js';
-import { button } from '../../components/ui/Button.js';
+import { button, setLoading } from '../../components/ui/Button.js';
+import { alertBox, checkboxField, clearFieldErrors, showFieldErrors, textField } from '../../components/ui/Field.js';
+import { toast } from '../../components/ui/Toast.js';
 import { session } from '../../lib/store.js';
 import { welcomeHeader } from '../../components/dashboard/WelcomeHeader.js';
 import { kpiCard } from '../../components/dashboard/KPICard.js';
@@ -180,6 +182,91 @@ function qrCard() {
   });
 }
 
+/** ISO UTC → valor de <input type="datetime-local"> en hora de España. */
+function toLocalInput(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+    .formatToParts(d).map((p) => [p.type, p.value]));
+  return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+}
+
+/** Modo mantenimiento desde el panel y aviso programado (RNF-063). */
+function maintenanceCard() {
+  return card({
+    title: 'Mantenimiento',
+    iconName: 'settings',
+    body: dataView({
+      loadingLabel: 'Cargando el mantenimiento…',
+      load: (signal) => admin.maintenance(signal),
+      render: (m, { reload }) => {
+        const notice = h('div', { 'aria-live': 'polite' });
+        const submit = button({ text: 'Guardar', type: 'submit', iconName: 'check' });
+        const form = h('form', { class: 'form', novalidate: true },
+          m.activo
+            ? alertBox({ tone: 'warning', title: 'Mantenimiento activo', text: 'La aplicación responde «en mantenimiento» a todas las empresas. La plataforma y el acceso siguen funcionando.' })
+            : null,
+          checkboxField({ name: 'activo', label: 'Activar el mantenimiento ahora' }),
+          textField({ name: 'mensaje', label: 'Mensaje para las personas usuarias', value: m.mensaje ?? '', hint: 'Por ejemplo: «Volvemos a las 22:30». Opcional.', attrs: { maxlength: 200 } }),
+          h('div', { class: 'stack' },
+            textField({ name: 'programado_inicio', label: 'Mantenimiento programado: inicio', type: 'datetime-local', value: toLocalInput(m.programado?.inicio), hint: 'Hora de España. Se avisa desde 48 h antes.' }),
+            textField({ name: 'programado_fin', label: 'Fin', type: 'datetime-local', value: toLocalInput(m.programado?.fin) })),
+          notice,
+          h('div', { class: 'form__actions' }, submit));
+        form.elements.activo.checked = m.activo;
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          clearFieldErrors(form);
+          notice.replaceChildren();
+          setLoading(submit, true, 'Guardando…');
+          try {
+            await admin.saveMaintenance({
+              activo: form.elements.activo.checked,
+              mensaje: form.elements.mensaje.value.trim() || null,
+              programado_inicio: form.elements.programado_inicio.value || null,
+              programado_fin: form.elements.programado_fin.value || null,
+            });
+            toast(form.elements.activo.checked ? 'Mantenimiento activado.' : 'Mantenimiento guardado.');
+            reload();
+          } catch (error) {
+            setLoading(submit, false);
+            const rest = error instanceof ApiError ? showFieldErrors(form, error.fieldErrors) : {};
+            if (!(error instanceof ApiError) || !Object.keys(error.fieldErrors).length || Object.keys(rest).length) notice.append(alertBox({ tone: 'danger', text: error.message }));
+          }
+        });
+        return form;
+      },
+    }),
+  });
+}
+
+/** Errores 5xx de las últimas 24 h, agrupados (RNF-062). */
+function errorsCard() {
+  return card({
+    title: 'Errores del servidor · 24 h',
+    iconName: 'triangle-alert',
+    body: dataView({
+      loadingLabel: 'Revisando los registros…',
+      load: (signal) => admin.errors(24, signal),
+      isEmpty: (e) => e.total === 0,
+      empty: () => emptyState({ title: 'Sin errores en las últimas 24 horas.', text: 'Los errores internos (5xx) aparecen aquí agrupados por código y ruta.', iconName: 'circle-check' }),
+      render: (e) => h('div', { class: 'stack' },
+        h('p', { class: 'small muted', text: `${formatNumber(e.total)} errores. Con el identificador se localiza el detalle en storage/logs del servidor.` }),
+        table({
+          caption: 'Errores 5xx agrupados por código y ruta',
+          rows: e.grupos,
+          columns: [
+            { label: 'Código', primary: true, render: (g) => badge(g.code, { tone: 'danger', iconName: 'circle-alert' }) },
+            { label: 'Ruta', render: (g) => h('code', { text: g.ruta }) },
+            { label: 'Veces', render: (g) => formatNumber(g.veces) },
+            { label: 'Última', render: (g) => formatDateTime(g.ultima) },
+            { label: 'Identificador', render: (g) => h('code', { text: g.correlation_id ?? '—' }) },
+          ],
+        })),
+    }),
+  });
+}
+
 export default function adminHome() {
   const { node: welcome, titleId } = welcomeHeader({
     name: session.me.usuario.nombre,
@@ -191,6 +278,7 @@ export default function adminHome() {
       welcome,
       dataView({ loadingLabel: 'Cargando las métricas…', lines: 4, load: (signal) => admin.metrics(signal), render }),
       qrCard(),
-      aiUsageCard()),
+      aiUsageCard(),
+      h('div', { class: 'two-columns' }, maintenanceCard(), errorsCard())),
   };
 }

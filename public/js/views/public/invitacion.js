@@ -15,7 +15,8 @@ function privacySummary() {
       h('li', { text: 'Pyme Hub trata tus datos por encargo de tu empresa para cuidar el bienestar y la formación del equipo.' }),
       h('li', { text: 'Tus respuestas al check-in solo se muestran agregadas, con un mínimo de 5 personas; tus notas solo las ves tú.' }),
       h('li', { text: 'Ningún dato personal se envía a proveedores de inteligencia artificial.' }),
-      h('li', { text: 'Puedes pedir a tu empresa la exportación o la supresión de tus datos en cualquier momento.' })));
+      h('li', { text: 'Puedes descargar tus datos desde la aplicación y pedir a tu empresa su supresión en cualquier momento.' })),
+    h('p', {}, h('a', { href: '#/legal/privacidad', target: '_blank', rel: 'noopener', text: 'Leer la política de privacidad completa' })));
 }
 
 /** Activación de la cuenta desde el enlace de invitación (RF-005). */

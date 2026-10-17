@@ -4,7 +4,8 @@
  * 2. Recupera la sesión con GET /v1/auth/me.
  * 3. Arranca el enrutado por hash y pinta la vista en el AppShell o en la pantalla de acceso.
  */
-import { auth, configureApi } from './services/api.js';
+import { auth, configureApi, publicApi } from './services/api.js';
+import { formatDate, formatDateTime } from './lib/format.js';
 // Captura temprana del aviso de instalación (beforeinstallprompt) para #/instalar
 import './lib/install.js';
 import { h } from './lib/dom.js';
@@ -78,7 +79,34 @@ function ensureShell() {
   shell = { ...appShell(), key };
   app.replaceChildren(shell.root);
   updateConnectionBanner();
+  updateNotices();
+  if (navigator.onLine) refreshStatus(); // al crear el shell (arranque o nuevo inicio de sesión)
   return shell;
+}
+
+/* ---------- Avisos: mantenimiento programado (RNF-063) y empresa de baja (RF-111) ---------- */
+
+let platformStatus = null;
+async function refreshStatus() {
+  try {
+    platformStatus = await publicApi.status();
+  } catch {
+    platformStatus = null; // sin conexión o API caída: no se avisa de nada
+  }
+  updateNotices();
+}
+
+function updateNotices() {
+  if (!shell) return;
+  const borrado = session.me?.interlocutor?.fecha_borrado;
+  const prog = platformStatus?.programado;
+  if (borrado) {
+    shell.notice.show(`Tu empresa está de baja: solo lectura. Sus datos se borrarán el ${formatDate(borrado, 'long')}; puedes exportarlos en Configuración.`, 'triangle-alert');
+  } else if (prog) {
+    shell.notice.show(`Mantenimiento programado: ${formatDateTime(prog.inicio)} – ${formatDateTime(prog.fin)}.${prog.mensaje ? ` ${prog.mensaje}` : ''}`, 'clock');
+  } else {
+    shell.notice.hide();
+  }
 }
 
 /** Tras navegar, el foco va al título de la vista para lectores de pantalla (RNF-045). */
@@ -225,7 +253,7 @@ async function restoreSession() {
   // Sin sesión previa en este navegador, el sitio público y el acceso no consultan la API:
   // así no aparece un 401 en la consola en cada visita. Las rutas privadas sí la consultan siempre.
   const { path } = parseHash();
-  const publicRoute = path.startsWith('/invitacion/') || routes.some((r) => (r.site || r.public) && r.path === path);
+  const publicRoute = path.startsWith('/invitacion/') || path.startsWith('/legal/') || routes.some((r) => (r.site || r.public) && r.path === path);
   if (publicRoute && !session.cached()) return true;
   try {
     session.set(await auth.me());
@@ -260,6 +288,7 @@ async function boot() {
   configureApi(config);
   if (!(await restoreSession())) return;
   if (session.isAuthenticated && !session.offline && navigator.onLine) sendPending();
+  if (!boot.statusTimer) boot.statusTimer = setInterval(() => { if (session.isAuthenticated && navigator.onLine) refreshStatus(); }, 15 * 60 * 1000);
   if (!boot.started) {
     boot.started = true;
     registerServiceWorker();

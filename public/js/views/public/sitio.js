@@ -1,6 +1,8 @@
 import { commercialEmail, publicApi } from '../../services/api.js';
 import { h, uniqueId } from '../../lib/dom.js';
 import { session } from '../../lib/store.js';
+import { annualPerEmployee, DEFAULTS, euros, loadParams } from '../../lib/params.js';
+import { formatNumber } from '../../lib/format.js';
 import { icon } from '../../components/ui/Icon.js';
 import { animatedLogo } from '../../components/brand/AnimatedLogo.js';
 import { brandBackground } from '../../components/brand/BrandBackground.js';
@@ -43,14 +45,16 @@ const DEMO_ENTRADA = {
   empresa: 'Mensajería Tajo S.L. · plan Entrada',
   ver: ['Bienestar y formación completos', 'La IA de RR. HH. como vista informativa del plan Completo'],
 };
-const CONDICIONES = [
-  ['party-popper', 'Piloto gratuito de 30 días'],
-  ['tag', 'Desde 15 € por empleado y mes'],
+/** Condiciones comerciales del panel de la demo, a partir de los parámetros de la plataforma. */
+const conditions = (p) => [
+  ['party-popper', `Piloto gratuito de ${p['suscripcion.dias_prueba']} días`],
+  ['tag', `Desde ${euros(Math.min(p['precios.entrada_mes'], p['precios.completo_mes']))} + IVA por empleado y mes`],
   ['calendar', 'Plan mensual sin permanencia'],
   ['clock', 'Soporte en menos de 4 h laborables'],
   ['activity', 'Disponibilidad del 99,5 %'],
   ['download', 'Tus datos, siempre exportables'],
 ];
+const conditionItems = (p) => conditions(p).map(([ic, text]) => h('li', {}, icon(ic, { size: 'sm' }), h('span', { text })));
 
 /** Parámetros del modo demo, leídos una vez al cargar la página (antes de limpiar la URL). */
 const DEMO = (() => {
@@ -150,9 +154,14 @@ function demoSection(logged) {
           h('span', { text: 'Datos 100 % ficticios. La demostración se restaura cada noche.' })),
         live),
       h('div', { class: 'demo-terms' },
-        h('ul', { class: 'demo-terms__list', role: 'list', 'aria-label': 'Condiciones de Pyme Hub' },
-          CONDICIONES.map(([ic, text]) => h('li', {}, icon(ic, { size: 'sm' }), h('span', { text })))),
+        termsList(),
         pilot)));
+}
+
+function termsList() {
+  const list = h('ul', { class: 'demo-terms__list', role: 'list', 'aria-label': 'Condiciones de Pyme Hub' }, conditionItems(DEFAULTS));
+  loadParams().then((p) => list.replaceChildren(...conditionItems(p)));
+  return list;
 }
 
 function demoCard(u, live, logged, secondary = false) {
@@ -343,35 +352,52 @@ function trustItem(iconName, title, text, link = null) {
 /* ---------- Planes ---------- */
 
 function plans() {
+  // Se pinta con los valores por defecto y se actualiza con los parámetros de la plataforma (fase 9a)
+  const entrada = plan({
+    id: 'ENTRADA',
+    name: 'Entrada',
+    text: 'Para empezar a cuidar y formar a tu equipo.',
+    items: ['Bienestar', 'Formación adaptativa', 'Asesor de formación con IA'],
+  });
+  const completo = plan({
+    id: 'COMPLETO',
+    name: 'Completo',
+    featured: true,
+    text: 'Para anticiparte a la rotación con datos.',
+    items: ['Todo lo del plan Entrada', 'IA de RR. HH.: riesgo de rotación explicable', 'Alertas y línea base de impacto'],
+  });
+  const note = h('p', { class: 'plans__note' });
+  const fill = (p) => {
+    for (const el of [entrada, completo]) {
+      const id = el.dataset.plan;
+      el.querySelector('.plan__amount').textContent = euros(id === 'COMPLETO' ? p['precios.completo_mes'] : p['precios.entrada_mes']);
+      const desc = Number(p['precios.descuento_anual_pct']) || 0;
+      el.querySelector('.plan__annual').textContent = `Pago anual: ${euros(annualPerEmployee(p, id))} + IVA por empleado y año${desc > 0 ? ` (${formatNumber(desc)} % de descuento)` : ''}.`;
+    }
+    note.replaceChildren(
+      h('span', { text: `Suscripción mensual sin permanencia o anual, por empleado activo. ${p['suscripcion.dias_prueba']} días de prueba gratuita. ` }),
+      h('strong', { text: `Precios para empresas. IVA (${formatNumber(p['precios.iva_pct'])} %) no incluido.` }));
+  };
+  fill(DEFAULTS);
+  loadParams().then(fill);
   return h('section', { class: 'section', id: 'planes', 'aria-labelledby': 'h-planes' },
     h('div', { class: 'site__wrap' },
       sectionHead('h-planes', 'Planes', 'Un precio claro por persona', 'Pagas solo por las personas activas de tu plantilla.', true),
-      h('div', { class: 'plans' },
-        plan({
-          name: 'Entrada',
-          price: '15 €',
-          text: 'Para empezar a cuidar y formar a tu equipo.',
-          items: ['Bienestar', 'Formación adaptativa', 'Asesor de formación con IA'],
-        }),
-        plan({
-          name: 'Completo',
-          price: '29 €',
-          featured: true,
-          text: 'Para anticiparte a la rotación con datos.',
-          items: ['Todo lo del plan Entrada', 'IA de RR. HH.: riesgo de rotación explicable', 'Alertas y línea base de impacto'],
-        })),
-      h('p', { class: 'plans__note', text: 'Suscripción mensual o anual por empleado activo.' })));
+      h('div', { class: 'plans' }, entrada, completo),
+      note));
 }
 
-function plan({ name, price, text, items, featured = false }) {
-  return h('article', { class: ['plan on-scroll', featured && 'plan--featured'] },
+function plan({ id, name, text, items, featured = false }) {
+  return h('article', { class: ['plan on-scroll', featured && 'plan--featured'], dataset: { plan: id } },
     h('div', { class: 'stack' },
       featured ? h('span', { class: 'badge badge--success', text: 'Más completo' }) : null,
       h('h3', { class: 'plan__name', text: `Plan ${name}` }),
       h('p', { class: 'muted small', text })),
     h('p', { class: 'plan__price' },
-      h('span', { class: 'plan__amount', text: price }),
+      h('span', { class: 'plan__amount' }),
+      h('span', { class: 'plan__vat', text: '+ IVA' }),
       h('span', { class: 'plan__unit', text: 'por empleado y mes' })),
+    h('p', { class: 'plan__annual small muted' }),
     h('ul', { class: 'feature__list', role: 'list' }, items.map((item) => h('li', {}, icon('check'), h('span', { text: item })))));
 }
 
@@ -397,7 +423,11 @@ function footer(access) {
         : `© ${year} Pyme Hub. Proyecto del Trabajo Fin de Máster de EUDE Business School (The Best Team).` }),
       h('nav', { 'aria-label': 'Enlaces del pie' },
         h('a', { href: access.href, text: access.text }),
-        h('a', { href: '#/instalar', text: 'Instalar la app' }))));
+        h('a', { href: '#/instalar', text: 'Instalar la app' }),
+        h('a', { href: '#/legal/aviso', text: 'Aviso legal' }),
+        h('a', { href: '#/legal/privacidad', text: 'Privacidad' }),
+        h('a', { href: '#/legal/terminos', text: 'Términos' }),
+        h('a', { href: '#/legal/cookies', text: 'Cookies' }))));
 }
 
 function sectionHead(id, eyebrow, title, text, center = false) {

@@ -165,6 +165,35 @@ export async function request(method, path, opts = {}) {
 }
 
 const get = async (path, query, signal) => request('GET', path, { query, signal });
+
+/**
+ * Descarga un archivo de la API (exportaciones): lo guarda con el nombre que envía el servidor.
+ * Los errores llegan como ApiError, igual que en request().
+ */
+export async function download(path, fallbackName = 'pymehub.zip') {
+  let response;
+  try {
+    response = await fetch(buildUrl(path), { credentials: 'include', cache: 'no-store', headers: { Accept: '*/*' } });
+  } catch {
+    throw new ApiError({ code: 'PH-NET-001' });
+  }
+  if (!response.ok) {
+    const payload = await parseBody(response).catch(() => null);
+    const e = payload?.error ?? {};
+    throw new ApiError({ code: e.code ?? 'PH-SYS-001', message: e.message, status: response.status, details: e.details, correlationId: e.correlation_id });
+  }
+  const blob = await response.blob();
+  const match = /filename="?([^";]+)"?/i.exec(response.headers.get('Content-Disposition') ?? '');
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = match?.[1] ?? fallbackName;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  return a.download;
+}
 const data = async (promise) => (await promise)?.data ?? null;
 
 function rememberSession(me) {
@@ -202,6 +231,17 @@ export const admin = {
   metrics: (signal) => data(get('/v1/admin/metrics', {}, signal)),
   /** Uso del asesor de IA, sin contenido → { data, meta } */
   aiUsage: (signal) => get('/v1/admin/ai-usage', { days: 30 }, signal),
+  updateTenant: (id, input) => data(request('PATCH', `/v1/admin/tenants/${encodeURIComponent(id)}`, { json: input })),
+  /** Exportación completa de una empresa en ZIP (RF-110) */
+  exportTenant: (id) => download(`/v1/admin/tenants/${encodeURIComponent(id)}/export`),
+  /** Modo mantenimiento (RNF-063) → { activo, mensaje, programado } */
+  maintenance: (signal) => data(get('/v1/admin/maintenance', {}, signal)),
+  saveMaintenance: (input) => data(request('PUT', '/v1/admin/maintenance', { json: input })),
+  /** Parámetros de la plataforma (fase 9a) */
+  params: (signal) => data(get('/v1/admin/params', {}, signal)),
+  saveParams: (input) => data(request('PUT', '/v1/admin/params', { json: input })),
+  /** Errores 5xx agrupados (RNF-062) */
+  errors: (hours, signal) => data(get('/v1/admin/errors', { hours }, signal)),
   /** Métricas del QR del folleto (DMO-035). query: { campaign, from, to } → { data, meta } */
   campaignMetrics: (query, signal) => get('/v1/admin/campaign-metrics', query, signal),
 };
@@ -212,6 +252,20 @@ export const publicApi = {
   demoStatus: (signal) => data(get('/v1/public/demo-status', {}, signal)),
   /** Cuenta una visita de campaña, sin cookies ni datos personales (DMO-030) */
   visit: (input) => request('POST', '/v1/public/visits', { json: input, retry: false }),
+  /** Parámetros públicos: precios sin IVA, IVA, descuento anual, titular y versión legal */
+  params: (signal) => data(get('/v1/public/params', {}, signal)),
+  /** Mantenimiento activo o programado en las próximas 48 h (RNF-063) */
+  status: (signal) => data(get('/v1/public/status', {}, signal)),
+};
+
+/* ---------- Portabilidad y derechos RGPD (LEG-017, §8.8) ---------- */
+export const privacy = {
+  /** ZIP con todos los datos de la empresa (gerencia) */
+  exportCompany: () => download('/v1/company/export'),
+  /** JSON con mis datos (acceso y portabilidad) */
+  myData: () => download('/v1/me/data-export', 'mis-datos-pymehub.json'),
+  /** Supresión de una persona ya dada de baja */
+  erase: (id) => request('POST', `/v1/employees/${encodeURIComponent(id)}/erase`, { json: { confirmacion: 'SUPRIMIR' } }),
 };
 
 export const health = () => data(get('/v1/health'));

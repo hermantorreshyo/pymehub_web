@@ -1,4 +1,4 @@
-import { ApiError, baseline, users } from '../../services/api.js';
+import { ApiError, baseline, privacy, users } from '../../services/api.js';
 import { baselineComparison } from '../../lib/risk.js';
 import { h } from '../../lib/dom.js';
 import { formatDate, formatDateTime, label } from '../../lib/format.js';
@@ -137,6 +137,34 @@ function baselineForm(res, reload) {
     form);
 }
 
+/** Portabilidad: la gerencia descarga todos los datos de su empresa cuando quiera (RF-110, LEG-017). */
+function dataCard() {
+  const me = session.me;
+  const btn = button({ text: 'Exportar los datos de la empresa', variant: 'secondary', iconName: 'download' });
+  btn.addEventListener('click', async () => {
+    setLoading(btn, true, 'Preparando el ZIP…');
+    try {
+      await privacy.exportCompany();
+      toast('Exportación descargada.');
+    } catch (error) {
+      toast(error.message, { tone: 'error' });
+    } finally {
+      setLoading(btn, false);
+    }
+  });
+  return card({
+    title: 'Tus datos',
+    iconName: 'download',
+    body: [
+      h('p', { text: 'Descarga un ZIP con la plantilla, los equipos, las incidencias, la formación, el bienestar agregado por equipo, las alertas y el riesgo de rotación, en CSV y JSON.' }),
+      me.interlocutor?.fecha_borrado
+        ? alertBox({ tone: 'warning', title: 'Tu empresa está de baja', text: `Los datos se borrarán definitivamente el ${formatDate(me.interlocutor.fecha_borrado, 'long')}. Descárgalos antes.` })
+        : null,
+      me.demo ? h('p', { class: 'small muted', text: 'No disponible en la demostración.' }) : btn,
+    ],
+  });
+}
+
 export default function configuracionView() {
   const gerente = session.perfil === 'GERENTE';
   return page({
@@ -147,6 +175,7 @@ export default function configuracionView() {
     children: [
       h('div', { class: 'two-columns' }, companyCard(), gerente ? accountsCard() : null),
       baselineCard(),
+      gerente ? dataCard() : null,
     ],
   });
 }

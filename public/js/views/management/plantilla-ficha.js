@@ -1,4 +1,7 @@
-import { employees, risk, training } from '../../services/api.js';
+import { employees, privacy, risk, training } from '../../services/api.js';
+import { navigate } from '../../lib/router.js';
+import { confirmDialog } from '../../components/ui/ConfirmDialog.js';
+import { toast } from '../../components/ui/Toast.js';
 import { chartBlock } from '../../lib/charts.js';
 import { factorList, scoreMeter, supervisionNote } from '../../lib/risk.js';
 import { session } from '../../lib/store.js';
@@ -19,6 +22,27 @@ import { pagination, table } from '../../components/ui/Table.js';
 function dataList(entries) {
   return h('dl', { class: 'data-list' },
     entries.map(([term, value]) => h('div', {}, h('dt', { text: term }), h('dd', {}, value ?? '—'))));
+}
+
+/** Supresión de los datos de una persona dada de baja (RGPD art. 17). */
+function eraseButton(e) {
+  return h('div', {},
+    button({
+      text: 'Suprimir sus datos personales',
+      variant: 'danger',
+      iconName: 'trash-2',
+      onClick: () => confirmDialog({
+        title: `Suprimir los datos de ${fullName(e)}`,
+        text: 'Se borran definitivamente sus check-ins y notas, incidencias, formación, preferencias, consultas al asesor, puntuaciones de riesgo y alertas, y se anonimizan su nombre y su correo.',
+        items: ['Se conservan, sin identificar a nadie, sus fechas de alta y baja, el motivo, el puesto y el equipo, para los indicadores de rotación.', 'No se puede deshacer.'],
+        confirmText: 'Suprimir', word: 'SUPRIMIR',
+        onConfirm: async () => {
+          await privacy.erase(e.id);
+          toast('Datos suprimidos.');
+          navigate('/plantilla', { situacion: 'BAJA' }, { replace: true });
+        },
+      }),
+    }));
 }
 
 /** Tono de una incidencia: el reconocimiento es positivo; el resto, neutro. */
@@ -64,11 +88,13 @@ function render(e) {
   const deBaja = Boolean(e.fecha_baja);
   return h('div', { class: 'stack' },
     deBaja
-      ? alertBox({
-        tone: 'warning',
-        title: `De baja desde el ${formatDate(e.fecha_baja, 'long')}`,
-        text: `Motivo: ${label('motivoBaja', e.motivo_baja)}. La ficha queda en solo lectura.`,
-      })
+      ? h('div', { class: 'stack' },
+        alertBox({
+          tone: 'warning',
+          title: `De baja desde el ${formatDate(e.fecha_baja, 'long')}`,
+          text: `Motivo: ${label('motivoBaja', e.motivo_baja)}. La ficha queda en solo lectura.`,
+        }),
+        session.perfil === 'GERENTE' && !session.me.demo ? eraseButton(e) : null)
       : null,
     h('div', { class: 'two-columns' },
       card({

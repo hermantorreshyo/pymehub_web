@@ -8,6 +8,9 @@ export const routes = [
   { path: '/', site: true, view: () => import('./views/public/sitio.js') },
   // Instalación de la app a voluntad: destino del QR /app (con y sin sesión)
   { path: '/instalar', site: true, view: () => import('./views/public/instalar.js') },
+  // Textos legales (fase 9a): aviso, privacidad, terminos, cookies y skills
+  { path: '/legal', site: true, view: () => import('./views/public/legal.js') },
+  { path: '/legal/:doc', site: true, view: () => import('./views/public/legal.js') },
 
   // Sin sesión
   { path: '/acceso', public: true, guestOnly: true, view: () => import('./views/public/login.js') },
@@ -28,6 +31,7 @@ export const routes = [
 
   // Plataforma
   { path: '/empresas', views: { admin: () => import('./views/admin/empresas.js') } },
+  { path: '/parametros', views: { admin: () => import('./views/admin/parametros.js') } },
 
   // Gestión
   { path: '/bienestar', feature: 'bienestar', views: { gestion: () => import('./views/management/bienestar.js') } },

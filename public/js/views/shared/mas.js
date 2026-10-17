@@ -3,6 +3,8 @@ import { label } from '../../lib/format.js';
 import { logout } from '../../lib/auth-actions.js';
 import { bottomItems, navItems } from '../../lib/navigation.js';
 import { session } from '../../lib/store.js';
+import { privacy } from '../../services/api.js';
+import { toast } from '../../components/ui/Toast.js';
 import { isStandalone } from '../../lib/install.js';
 import { page } from '../../components/layout/Page.js';
 import { avatar } from '../../components/ui/Avatar.js';
@@ -34,6 +36,15 @@ export default function moreView() {
       h('ul', { class: 'list more-list' },
         isStandalone() ? null : h('li', { class: 'list__item' },
           h('a', { href: '#/instalar' }, icon('download'), h('span', { text: 'Instalar la app en este dispositivo' }), icon('chevron-right'))),
+        me.demo ? null : h('li', { class: 'list__item' },
+          h('button', {
+            type: 'button',
+            onclick: async () => {
+              try { await privacy.myData(); toast('Tus datos se han descargado.'); } catch (error) { toast(error.message, { tone: 'error' }); }
+            },
+          }, icon('download'), h('span', { text: 'Descargar mis datos' }))),
+        h('li', { class: 'list__item' },
+          h('a', { href: '#/legal/privacidad' }, icon('shield-check'), h('span', { text: 'Privacidad y condiciones' }), icon('chevron-right'))),
         h('li', { class: 'list__item' },
           h('button', { type: 'button', onclick: logout }, icon('log-out'), h('span', { text: 'Cerrar sesión' })))),
     ],
