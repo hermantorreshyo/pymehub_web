@@ -34,8 +34,9 @@ export function appShell() {
 
   // Avisos de la plataforma: mantenimiento programado (RNF-063) y empresa de baja (RF-111)
   const notice = h('p', { class: 'notice-banner', role: 'status', hidden: true });
-  notice.show = (text, iconName = 'clock') => {
-    notice.replaceChildren(icon(iconName, { size: 'sm' }), h('span', { text }));
+  notice.show = (text, iconName = 'clock', link = null) => {
+    notice.replaceChildren(icon(iconName, { size: 'sm' }), h('span', { text }),
+      link ? h('a', { href: link.href, class: 'notice-banner__link', text: link.text }) : null);
     notice.hidden = false;
   };
   notice.hide = () => { notice.hidden = true; };

@@ -2,6 +2,45 @@
 
 Formato basado en *Keep a Changelog*; versiones SemVer.
 
+## [0.9.0] · 2026-10-17
+
+**Suscripción, vigencia y pagos con Stripe en modo prueba.** Requiere `pymehub_api` 0.9.0.
+
+### Añadido
+- **Suscripción** (`#/suscripcion`, solo la gerencia; en el menú y en «Más»):
+  - estado con texto e icono: Prueba gratuita, Vigente, En periodo de gracia o Vencida · solo lectura;
+  - fecha de fin y empleados activos;
+  - contratación o renovación: plan y ciclo, con el resumen del pedido (empleados × precio, descuento anual si lo hay, base imponible, IVA del 21 % y total);
+  - aceptación de los términos con enlace, aviso de modo prueba con la tarjeta 4242;
+  - redirección a Stripe Checkout;
+  - portal del cliente: «Gestionar el pago y las facturas»;
+  - tabla de facturas con base, IVA, total, estado y enlace a la factura de Stripe;
+  - vuelta de Stripe (`?pago=ok|cancelado`): «Confirmando el pago…» hasta que llega el webhook. Después se actualizan el perfil y los avisos.
+- **Avisos fijos de vigencia**:
+  - prueba en sus 7 últimos días, para la gerencia;
+  - gracia, para la gestión;
+  - vencida, para todos;
+  - la gerencia ve el enlace «Ir a Suscripción».
+- **Administración**:
+  - columna Vigencia en Empresas y diálogo **Vigencia**: ampliar días, fijar fecha (pagada o prueba) o sin vencimiento, con pago manual opcional;
+  - página **Pagos**: Stripe y manuales, con el total cobrado.
+- Mensajes para `PH-PLAN-002` y `PH-PAY-001` a `PH-PAY-005`.
+- Iconos `credit-card`, `receipt`, `external-link` y `calendar-clock` en el sprite.
+- `vigenciaBadge` en `components/ui/Badge.js`.
+
+### Cambiado
+- Service worker `v0.9.0`, con las vistas nuevas precargadas.
+
+### Revisión
+- 390, 768 y 1440 px: sin desbordamiento horizontal y sin errores de consola.
+- Probados:
+  - redirección a Checkout (interceptada);
+  - términos obligatorios;
+  - vuelta de Stripe;
+  - empresa vencida;
+  - diálogo de vigencia con pago manual;
+  - demo.
+
 ## [0.8.0] · 2026-10-17
 
 **Operación, RGPD, textos legales y precios con IVA.** Requiere `pymehub_api` 0.8.0.

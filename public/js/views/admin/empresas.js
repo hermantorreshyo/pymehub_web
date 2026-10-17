@@ -2,7 +2,8 @@ import { admin } from '../../services/api.js';
 import { h } from '../../lib/dom.js';
 import { formatDate, formatNumber, label } from '../../lib/format.js';
 import { page } from '../../components/layout/Page.js';
-import { badge } from '../../components/ui/Badge.js';
+import { badge, vigenciaBadge } from '../../components/ui/Badge.js';
+import { validityDialog } from './vigencia.js';
 import { button, setLoading } from '../../components/ui/Button.js';
 import { confirmDialog } from '../../components/ui/ConfirmDialog.js';
 import { toast } from '../../components/ui/Toast.js';
@@ -53,7 +54,10 @@ function actions(t, reload) {
       confirmText: 'Dar de baja', word: 'BAJA',
       onConfirm: async () => { await admin.updateTenant(t.id, { estado: 'BAJA' }); toast('Empresa dada de baja.'); reload(); },
     }) });
-  return h('div', { class: 'row-actions' }, exp, baja);
+  const vig = t.suscripcion
+    ? button({ text: 'Vigencia', variant: 'tertiary', iconName: 'calendar-clock', onClick: () => validityDialog(t, reload) })
+    : null;
+  return h('div', { class: 'row-actions' }, vig, exp, baja);
 }
 
 /** Empresas cliente (GET /v1/admin/tenants). */
@@ -81,6 +85,15 @@ export default function empresasView() {
             t.fecha_borrado ? h('span', { class: 'small muted', text: `Borrado definitivo el ${formatDate(t.fecha_borrado)}` }) : null),
         },
         { label: 'Plan', render: (t) => (t.suscripcion ? `${label('plan', t.suscripcion.plan)} · ${label('cicloCobro', t.suscripcion.ciclo_cobro)}` : 'Sin suscripción') },
+        {
+          label: 'Vigencia',
+          render: (t) => (t.vigencia
+            ? h('span', { class: 'cell-stack' }, vigenciaBadge(t.vigencia.estado),
+              h('span', { class: 'small muted', text: t.vigencia.periodo_fin
+                ? `Hasta el ${formatDate(t.vigencia.periodo_fin)}${t.vigencia.pago_online ? ' · Stripe' : ''}`
+                : 'Sin vencimiento' }))
+            : '—'),
+        },
         { label: 'Empleados', render: (t) => (t.suscripcion ? `${formatNumber(t.empleados_activos)} / ${formatNumber(t.suscripcion.limite_empleados)}` : formatNumber(t.empleados_activos)) },
         {
           label: 'Contrato de encargado',

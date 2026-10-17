@@ -32,6 +32,7 @@ export const routes = [
   // Plataforma
   { path: '/empresas', views: { admin: () => import('./views/admin/empresas.js') } },
   { path: '/parametros', views: { admin: () => import('./views/admin/parametros.js') } },
+  { path: '/pagos', views: { admin: () => import('./views/admin/pagos.js') } },
 
   // Gestión
   { path: '/bienestar', feature: 'bienestar', views: { gestion: () => import('./views/management/bienestar.js') } },
@@ -55,6 +56,8 @@ export const routes = [
   { path: '/plantilla/equipos', views: { gestion: () => import('./views/management/equipos.js') } },
   { path: '/plantilla/:id', views: { gestion: () => import('./views/management/plantilla-ficha.js') } },
   { path: '/configuracion', views: { gestion: () => import('./views/management/configuracion.js') } },
+  // Suscripción y pagos (fases 9b y 9c): la API solo la permite a la gerencia
+  { path: '/suscripcion', views: { gestion: () => import('./views/management/suscripcion.js') } },
 
   // Empleado
   { path: '/checkin', feature: 'bienestar', views: { empleado: () => import('./views/employee/checkin.js') } },

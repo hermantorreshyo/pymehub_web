@@ -825,3 +825,14 @@
 @media (prefers-reduced-motion: reduce) {
   .risk-meter__fill, .risk-dist__fill { transition: none; }
 }
+
+/* ---------- Suscripción: resumen del pedido con base, IVA y total (fase 9c) ---------- */
+.order-summary { display: grid; gap: var(--space-2); margin: 0; padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); }
+.order-summary__row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); }
+.order-summary__row dt { color: var(--text-2); }
+.order-summary__row dd { margin: 0; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.order-summary__base { padding-top: var(--space-2); border-top: 1px solid var(--border); }
+.order-summary__total { padding-top: var(--space-2); border-top: 2px solid var(--text); font-weight: 700; font-size: 1.125rem; }
+.order-summary__total dt { color: var(--text); }
+.inline-note { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; }
+.inline-note .icon { flex: none; margin-top: 2px; }

@@ -28,3 +28,16 @@ export function levelBadge(level) {
   const n = NIVELES[level] ?? { text: level ?? '—', tone: 'neutral', icon: 'info' };
   return badge(n.text, { tone: n.tone, iconName: n.icon });
 }
+
+/** Vigencia de la suscripción (fase 9b): nunca solo con color. */
+const VIGENCIA = {
+  PRUEBA: { text: 'Prueba gratuita', tone: 'info', icon: 'clock' },
+  VIGENTE: { text: 'Vigente', tone: 'success', icon: 'circle-check' },
+  GRACIA: { text: 'En periodo de gracia', tone: 'warning', icon: 'triangle-alert' },
+  VENCIDA: { text: 'Vencida · solo lectura', tone: 'danger', icon: 'circle-alert' },
+};
+
+export function vigenciaBadge(estado) {
+  const v = VIGENCIA[estado] ?? { text: estado ?? '—', tone: 'neutral', icon: 'info' };
+  return badge(v.text, { tone: v.tone, iconName: v.icon });
+}

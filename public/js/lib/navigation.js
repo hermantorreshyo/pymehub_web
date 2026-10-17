@@ -21,6 +21,7 @@ function gestion() {
     },
     { id: 'plantilla', label: 'Plantilla', path: '/plantilla', icon: 'users' },
     { id: 'configuracion', label: 'Configuración', path: '/configuracion', icon: 'settings' },
+    session.perfil === 'GERENTE' && { id: 'suscripcion', label: 'Suscripción', path: '/suscripcion', icon: 'credit-card' },
   ].filter(Boolean);
 }
 
@@ -36,6 +37,7 @@ function admin() {
   return [
     { id: 'inicio', label: 'Resumen', path: '/inicio', icon: 'chart-line' },
     { id: 'empresas', label: 'Empresas', path: '/empresas', icon: 'building' },
+    { id: 'pagos', label: 'Pagos', path: '/pagos', icon: 'receipt' },
     { id: 'parametros', label: 'Parámetros', path: '/parametros', icon: 'settings' },
   ];
 }

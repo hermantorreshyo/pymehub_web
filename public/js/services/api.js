@@ -21,6 +21,11 @@ const MESSAGES = {
   'PH-AUTH-005': 'Esta invitación ha caducado o ya se ha usado. Pide un enlace nuevo a tu empresa.',
   'PH-PERM-001': 'Tu perfil no permite hacer esta acción.',
   'PH-PLAN-001': 'Esta funcionalidad forma parte del plan Completo.',
+  'PH-PLAN-002': 'La suscripción ha vencido: puedes consultar y exportar, pero no hacer cambios hasta renovarla.',
+  'PH-PAY-001': 'El pago online no está disponible ahora mismo. Escríbenos y te ayudamos a renovar.',
+  'PH-PAY-002': 'No hemos podido conectar con la pasarela de pago. Inténtalo de nuevo en unos minutos.',
+  'PH-PAY-003': 'Tu empresa ya tiene el pago online activo. Gestiona los cambios desde «Gestionar el pago».',
+  'PH-PAY-004': 'Todavía no hay un pago online para tu empresa.',
   'PH-TENANT-001': 'No encontramos lo que buscas. Puede que ya no exista.',
   'PH-TENANT-002': 'Has llegado al límite de empleados de tu plan. Escríbenos y lo ampliamos.',
   'PH-TENANT-003': 'Para invitar a tu equipo falta registrar el contrato de encargado del tratamiento de la empresa.',
@@ -242,6 +247,10 @@ export const admin = {
   saveParams: (input) => data(request('PUT', '/v1/admin/params', { json: input })),
   /** Errores 5xx agrupados (RNF-062) */
   errors: (hours, signal) => data(get('/v1/admin/errors', { hours }, signal)),
+  /** Pagos de todas las empresas o de una (fase 9c) → { data, meta: { total, cobrado, stripe } } */
+  payments: (tenant, signal) => get('/v1/admin/payments', tenant ? { tenant } : {}, signal),
+  /** Vigencia: { accion: AMPLIAR|FIJAR|SIN_VENCIMIENTO, dias?, periodo_fin?, vigencia?, pago_manual?: { base, nota } } */
+  setValidity: (id, input) => data(request('PUT', `/v1/admin/tenants/${encodeURIComponent(id)}/validity`, { json: input })),
   /** Métricas del QR del folleto (DMO-035). query: { campaign, from, to } → { data, meta } */
   campaignMetrics: (query, signal) => get('/v1/admin/campaign-metrics', query, signal),
 };
@@ -256,6 +265,18 @@ export const publicApi = {
   params: (signal) => data(get('/v1/public/params', {}, signal)),
   /** Mantenimiento activo o programado en las próximas 48 h (RNF-063) */
   status: (signal) => data(get('/v1/public/status', {}, signal)),
+};
+
+/* ---------- Suscripción y pagos de la empresa (fases 9b y 9c, gerencia) ---------- */
+export const billing = {
+  /** Plan, vigencia, empleados e importes (base, IVA y total) por ciclo */
+  subscription: (signal) => data(get('/v1/billing/subscription', {}, signal)),
+  /** Facturas y pagos → { data, meta } */
+  invoices: (signal) => get('/v1/billing/invoices', {}, signal),
+  /** Sesión de Checkout de Stripe (modo prueba) → { url, importe, cobro_al_terminar_prueba } */
+  checkout: (input) => data(request('POST', '/v1/billing/checkout', { json: input })),
+  /** Portal del cliente de Stripe → { url } */
+  portal: () => data(request('POST', '/v1/billing/portal', { json: {} })),
 };
 
 /* ---------- Portabilidad y derechos RGPD (LEG-017, §8.8) ---------- */

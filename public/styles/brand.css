@@ -813,3 +813,4 @@ main[tabindex="-1"]:focus-visible { outline: none; }
 @media (min-width: 768px) { .legal__doc { padding: var(--space-8); } }
 .legal-links.auth-footer { justify-content: center; }
 .card input[type="datetime-local"] { min-width: 0; max-width: 100%; }
+.notice-banner__link { margin-left: auto; color: inherit; font-weight: 700; white-space: nowrap; }

@@ -100,10 +100,22 @@ function updateNotices() {
   if (!shell) return;
   const borrado = session.me?.interlocutor?.fecha_borrado;
   const prog = platformStatus?.programado;
+  // Vigencia de la suscripción (fase 9b): la gerencia ve el enlace para renovar
+  const v = session.me?.vigencia;
+  const gerente = session.perfil === 'GERENTE';
+  const renovar = gerente ? { href: '#/suscripcion', text: 'Ir a Suscripción' } : null;
   if (borrado) {
     shell.notice.show(`Tu empresa está de baja: solo lectura. Sus datos se borrarán el ${formatDate(borrado, 'long')}; puedes exportarlos en Configuración.`, 'triangle-alert');
+  } else if (v?.estado === 'VENCIDA') {
+    shell.notice.show(gerente
+      ? 'La suscripción ha vencido: Pyme Hub está en solo lectura hasta renovarla.'
+      : 'La suscripción de tu empresa ha vencido: puedes consultar, pero no registrar nada nuevo hasta que se renueve.', 'circle-alert', renovar);
   } else if (prog) {
     shell.notice.show(`Mantenimiento programado: ${formatDateTime(prog.inicio)} – ${formatDateTime(prog.fin)}.${prog.mensaje ? ` ${prog.mensaje}` : ''}`, 'clock');
+  } else if (v?.estado === 'GRACIA' && session.grupo === 'gestion') {
+    shell.notice.show(`La suscripción venció el ${formatDate(v.periodo_fin, 'long')}. Todo funciona hasta el ${formatDate(v.gracia_hasta, 'long')}; después quedará en solo lectura.`, 'triangle-alert', renovar);
+  } else if (v?.estado === 'PRUEBA' && gerente && v.dias_restantes !== null && v.dias_restantes <= 7) {
+    shell.notice.show(v.dias_restantes <= 0 ? 'La prueba gratuita termina hoy.' : `Te ${v.dias_restantes === 1 ? 'queda 1 día' : `quedan ${v.dias_restantes} días`} de prueba gratuita.`, 'clock', { href: '#/suscripcion', text: 'Contratar' });
   } else {
     shell.notice.hide();
   }
@@ -215,6 +227,14 @@ async function sendPending() {
 }
 onPendingChange(updateConnectionBanner);
 
+// Tras un pago o una renovación, la vigencia cambia: se refresca el perfil y los avisos
+window.addEventListener('ph:vigencia-cambiada', async () => {
+  try {
+    session.set(await auth.me());
+    updateNotices();
+  } catch { /* sin conexión: se actualizará en la siguiente comprobación */ }
+});
+
 window.addEventListener('ph:sesion-caducada', () => {
   const volver = currentPath();
   session.clear();
@@ -286,6 +306,10 @@ async function boot() {
     return;
   }
   configureApi(config);
+  // Vuelta desde Stripe Checkout sin la ruta (?pago=ok|cancelado): se abre la suscripción
+  if (new URLSearchParams(location.search).has('pago') && (!location.hash || location.hash === '#/')) {
+    history.replaceState(null, '', `${location.pathname}${location.search}#/suscripcion`);
+  }
   if (!(await restoreSession())) return;
   if (session.isAuthenticated && !session.offline && navigator.onLine) sendPending();
   if (!boot.statusTimer) boot.statusTimer = setInterval(() => { if (session.isAuthenticated && navigator.onLine) refreshStatus(); }, 15 * 60 * 1000);
