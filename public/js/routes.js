@@ -6,6 +6,8 @@
 export const routes = [
   // Sitio web público: primera pantalla para cualquier visitante, con o sin sesión
   { path: '/', site: true, view: () => import('./views/public/sitio.js') },
+  // Instalación de la app a voluntad: destino del QR /app (con y sin sesión)
+  { path: '/instalar', site: true, view: () => import('./views/public/instalar.js') },
 
   // Sin sesión
   { path: '/acceso', public: true, guestOnly: true, view: () => import('./views/public/login.js') },

@@ -3,6 +3,7 @@ import { label } from '../../lib/format.js';
 import { logout } from '../../lib/auth-actions.js';
 import { bottomItems, navItems } from '../../lib/navigation.js';
 import { session } from '../../lib/store.js';
+import { isStandalone } from '../../lib/install.js';
 import { page } from '../../components/layout/Page.js';
 import { avatar } from '../../components/ui/Avatar.js';
 import { badge } from '../../components/ui/Badge.js';
@@ -31,6 +32,8 @@ export default function moreView() {
           : null,
         me.plan ? h('div', {}, h('dt', { text: 'Plan' }), h('dd', {}, badge(label('plan', me.plan), { tone: 'info' }))) : null),
       h('ul', { class: 'list more-list' },
+        isStandalone() ? null : h('li', { class: 'list__item' },
+          h('a', { href: '#/instalar' }, icon('download'), h('span', { text: 'Instalar la app en este dispositivo' }), icon('chevron-right'))),
         h('li', { class: 'list__item' },
           h('button', { type: 'button', onclick: logout }, icon('log-out'), h('span', { text: 'Cerrar sesión' })))),
     ],

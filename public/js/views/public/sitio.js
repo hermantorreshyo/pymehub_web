@@ -329,14 +329,15 @@ function trust() {
       h('div', { class: 'feature-grid' },
         trustItem('truck', 'Pensado para la última milla', 'Para pymes de 10 a 250 personas con conductores, repartidores y operarios de almacén.'),
         trustItem('shield-check', 'Privacidad por diseño', 'Bienestar solo agregado, notas cifradas y ningún dato personal enviado a la IA. Cumplimiento RGPD.'),
-        trustItem('smartphone', 'En el bolsillo de cada persona', 'Se instala como una app desde el navegador y guarda lo que haces sin cobertura hasta recuperar la señal.'))));
+        trustItem('smartphone', 'En el bolsillo de cada persona', 'Se instala como una app desde el navegador y guarda lo que haces sin cobertura hasta recuperar la señal.', { href: '#/instalar', text: 'Cómo instalarla' }))));
 }
 
-function trustItem(iconName, title, text) {
+function trustItem(iconName, title, text, link = null) {
   return h('article', { class: 'feature on-scroll' },
     h('span', { class: 'feature__icon' }, icon(iconName, { size: 'lg' })),
     h('h3', { text: title }),
-    h('p', { text }));
+    h('p', { text }),
+    link ? h('a', { class: 'feature__link', href: link.href }, h('span', { text: link.text }), icon('arrow-right', { size: 'sm' })) : null);
 }
 
 /* ---------- Planes ---------- */
@@ -395,7 +396,8 @@ function footer(access) {
         ? `© ${year} Pyme Hub. Los datos de la demostración son ficticios.`
         : `© ${year} Pyme Hub. Proyecto del Trabajo Fin de Máster de EUDE Business School (The Best Team).` }),
       h('nav', { 'aria-label': 'Enlaces del pie' },
-        h('a', { href: access.href, text: access.text }))));
+        h('a', { href: access.href, text: access.text }),
+        h('a', { href: '#/instalar', text: 'Instalar la app' }))));
 }
 
 function sectionHead(id, eyebrow, title, text, center = false) {

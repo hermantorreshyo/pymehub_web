@@ -2,6 +2,27 @@
 
 Formato basado en *Keep a Changelog*; versiones SemVer.
 
+## [0.7.1] · 2026-10-17
+
+**Instalar la app a voluntad con una URL y un QR.** Requiere `pymehub_api` 0.7.1.
+
+### Añadido
+- **Ruta `/app`** en `public/.htaccess`: 302 sin caché a `/?utm_source=qr&utm_medium=impreso&utm_campaign=instalar_app#/instalar`; la bandera `NE` conserva el `#`.
+- **Página «Instala Pyme Hub»** (`#/instalar`, con y sin sesión), adaptada al navegador:
+  - botón «Instalar Pyme Hub» con el aviso nativo (`beforeinstallprompt`, capturado al arrancar en `lib/install.js`);
+  - en iPhone y iPad, los tres pasos de «Añadir a pantalla de inicio»;
+  - en navegadores internos (Instagram, LinkedIn, Facebook…), un aviso para abrirla en Chrome o Safari y «Copiar el enlace»;
+  - en Android o escritorio sin aviso todavía, los pasos del menú;
+  - si ya está instalada, «Abrir Pyme Hub».
+- La visita del QR y la instalación completada (`appinstalled`) se cuentan sin cookies; la URL se limpia.
+- Enlaces «Instalar la app» en el pie de la landing, en «Hecho para tu sector» y en «Más», este último salvo si ya se usa instalada.
+- **Administración** → la tarjeta «QR del folleto» pasa a llamarse «Códigos QR», con selector Folleto / Instalar la app. Para la app muestra visitas e instalaciones.
+- `docs/qr/`: `qr_demo.svg` y `qr_instalar_app.svg`, listos para imprimir y verificados decodificándolos.
+- Icono `share` en el sprite.
+
+### Cambiado
+- Service worker v0.7.1.
+
 ## [0.7.0] · 2026-10-13
 
 **Demo comercial y QR del folleto** (`docs/requerimientos/REQ_QR_DEMO_COMERCIAL.md`). Requiere `pymehub_api` 0.7.0.

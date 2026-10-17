@@ -95,32 +95,53 @@ function rangeQuery(id) {
   return { to: hoy };
 }
 
+const CAMPANIAS = [
+  { id: 'folleto_comercial', label: 'Folleto (demo)' },
+  { id: 'instalar_app', label: 'Instalar la app' },
+];
+
 /**
- * «QR del folleto» (DMO-036): visitas que llegan por el QR y entradas en la demo comercial.
+ * «Códigos QR» (DMO-036): visitas que llegan por el QR del folleto (/demo) y por el de
+ * instalación (/app), entradas en la demo e instalaciones completadas.
  * Solo recuentos: sin IP, sin dispositivo identificable y sin cookies (DMO-031, DMO-032).
  */
 function qrCard() {
   let rango = 'hoy';
+  let campania = 'folleto_comercial';
   const holder = h('div');
+  const campaigns = h('div', { class: 'qr-range', role: 'group', 'aria-label': 'Código QR' });
   const segmented = h('div', { class: 'qr-range', role: 'group', 'aria-label': 'Periodo' });
   const load = () => {
     segmented.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.rango === rango)));
+    campaigns.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.campania === campania)));
     holder.replaceChildren(dataView({
       loadingLabel: 'Cargando las visitas del QR…',
       lines: 3,
-      load: (signal) => admin.campaignMetrics({ campaign: 'folleto_comercial', ...rangeQuery(rango) }, signal),
+      load: (signal) => admin.campaignMetrics({ campaign: campania, ...rangeQuery(rango) }, signal),
       render: ({ data: m, meta }) => {
         const pct = (n) => (m.visitas ? `${Math.round((n / m.visitas) * 100)} %` : '—');
-        const ratio = m.visitas ? `${Math.round((m.logins_demo.total / m.visitas) * 100)} % de las visitas` : 'Sin visitas en el periodo';
+        const app = campania === 'instalar_app';
+        const ratio = (n) => (m.visitas ? `${Math.round((n / m.visitas) * 100)} % de las visitas` : 'Sin visitas en el periodo');
+        const kpis = [
+          kpiCard({ title: 'Visitas por el QR', value: formatNumber(m.visitas), note: m.ultima_visita ? `Última: ${formatDateTime(m.ultima_visita)}` : 'Todavía ninguna', iconName: 'eye', tone: 'info' }),
+          kpiCard({ title: 'Desde el móvil', value: pct(m.por_dispositivo.MOVIL), note: `${formatNumber(m.por_dispositivo.MOVIL)} móvil · ${formatNumber(m.por_dispositivo.ESCRITORIO)} escritorio`, iconName: 'smartphone', tone: 'info' }),
+        ];
+        if (app) {
+          const inst = m.instalaciones ?? { total: 0, por_dispositivo: { MOVIL: 0, ESCRITORIO: 0, OTRO: 0 } };
+          kpis.push(
+            kpiCard({ title: 'Instalaciones', value: formatNumber(inst.total), note: ratio(inst.total), iconName: 'download' }),
+            kpiCard({ title: 'Instaladas en el móvil', value: formatNumber(inst.por_dispositivo.MOVIL), note: `${formatNumber(inst.por_dispositivo.ESCRITORIO)} en ordenador · en iPhone no se puede contar`, iconName: 'smartphone', tone: 'muted' }));
+        } else {
+          kpis.push(
+            kpiCard({ title: 'Entradas en la demo', value: formatNumber(m.logins_demo.total), note: ratio(m.logins_demo.total), iconName: 'log-in' }),
+            kpiCard({ title: 'Por perfil', value: Object.values(m.logins_demo.por_perfil).join(' · '), note: Object.keys(m.logins_demo.por_perfil).map((k) => PERFILES_DEMO[k] ?? k).join(' · '), iconName: 'users', tone: 'muted' }));
+        }
         return h('div', { class: 'stack' },
-          meta.demo?.habilitada === false
+          !app && meta.demo?.habilitada === false
             ? h('p', { class: 'small hint-inline' }, icon('triangle-alert', { size: 'sm' }), ' La demostración está desactivada (demo.habilitada en config.php).')
             : null,
-          h('ul', { class: 'kpi-grid', role: 'list', 'aria-label': 'Indicadores del QR del folleto' },
-            kpiCard({ title: 'Visitas por el QR', value: formatNumber(m.visitas), note: m.ultima_visita ? `Última: ${formatDateTime(m.ultima_visita)}` : 'Todavía ninguna', iconName: 'eye', tone: 'info' }),
-            kpiCard({ title: 'Desde el móvil', value: pct(m.por_dispositivo.MOVIL), note: `${formatNumber(m.por_dispositivo.MOVIL)} móvil · ${formatNumber(m.por_dispositivo.ESCRITORIO)} escritorio`, iconName: 'smartphone', tone: 'info' }),
-            kpiCard({ title: 'Entradas en la demo', value: formatNumber(m.logins_demo.total), note: ratio, iconName: 'log-in' }),
-            kpiCard({ title: 'Por perfil', value: Object.values(m.logins_demo.por_perfil).join(' · '), note: Object.keys(m.logins_demo.por_perfil).map((k) => PERFILES_DEMO[k] ?? k).join(' · '), iconName: 'users', tone: 'muted' })),
+          h('p', { class: 'small muted', text: app ? 'Destino del QR: pymehub.hermantorres.com/app' : 'Destino del QR: pymehub.hermantorres.com/demo' }),
+          h('ul', { class: 'kpi-grid', role: 'list', 'aria-label': 'Indicadores del código QR' }, kpis),
           m.visitas
             ? h('div', { class: 'two-columns' },
               chartBlock({
@@ -137,21 +158,25 @@ function qrCard() {
                 series: [{ name: 'Visitas', data: m.por_hora.map((x) => x.visitas), color: 2 }],
                 yMin: 0, stepY: 1, height: 200,
               }))
-            : emptyState({ title: 'Sin visitas en este periodo.', text: 'Cada vez que alguien escanea el QR del folleto se suma una visita.', iconName: 'eye' }),
+            : emptyState({ title: 'Sin visitas en este periodo.', text: 'Cada vez que alguien escanea el QR se suma una visita.', iconName: 'eye' }),
           h('p', { class: 'small muted', text: `Se cuentan visitas, no personas: sin cookies, IP ni datos personales.${m.primera_visita ? ` Primera visita: ${formatDateTime(m.primera_visita)}.` : ''}` }));
       },
     }));
   };
+  CAMPANIAS.forEach((c) => campaigns.append(h('button', {
+    type: 'button', class: 'btn btn--secondary', dataset: { campania: c.id }, text: c.label,
+    onclick: () => { campania = c.id; load(); },
+  })));
   RANGOS.forEach((r) => segmented.append(h('button', {
     type: 'button', class: 'btn btn--secondary', dataset: { rango: r.id }, text: r.label,
     onclick: () => { rango = r.id; load(); },
   })));
   load();
   return card({
-    title: 'QR del folleto',
+    title: 'Códigos QR',
     iconName: 'smartphone',
     actions: button({ text: 'Actualizar', variant: 'secondary', iconName: 'refresh-cw', onClick: load }),
-    body: [segmented, holder],
+    body: [campaigns, segmented, holder],
   });
 }
 

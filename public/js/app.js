@@ -5,6 +5,8 @@
  * 3. Arranca el enrutado por hash y pinta la vista en el AppShell o en la pantalla de acceso.
  */
 import { auth, configureApi } from './services/api.js';
+// Captura temprana del aviso de instalación (beforeinstallprompt) para #/instalar
+import './lib/install.js';
 import { h } from './lib/dom.js';
 import { flush, onPendingChange, pending } from './lib/offline-queue.js';
 import { currentPath, navigate, parseHash, resolve, startRouter } from './lib/router.js';

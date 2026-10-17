@@ -51,9 +51,12 @@ DirectoryIndex index.html
     # Demo comercial: destino del QR del folleto (REQ_QR_DEMO_COMERCIAL, DMO-001 a DMO-003).
     # 302 temporal y sin caché: el destino puede cambiar sin reimprimir el folleto.
     # Por HTTP, primero el 301 de arriba y después este 302 (dos saltos como máximo).
-    RewriteRule ^demo/?$ /?modo=demo&utm_source=qr&utm_medium=folleto&utm_campaign=folleto_comercial [R=302,L,E=PH_DEMO:1]
+    RewriteRule ^demo/?$ /?modo=demo&utm_source=qr&utm_medium=folleto&utm_campaign=folleto_comercial [R=302,L,E=PH_NOCACHE:1]
+
+    # Instalar la app: destino del QR de instalación. NE conserva el «#» de la ruta de la PWA.
+    RewriteRule ^app/?$ /?utm_source=qr&utm_medium=impreso&utm_campaign=instalar_app#/instalar [R=302,L,NE,E=PH_NOCACHE:1]
 </IfModule>
 
 <IfModule mod_headers.c>
-    Header always set Cache-Control "no-store" env=PH_DEMO
+    Header always set Cache-Control "no-store" env=PH_NOCACHE
 </IfModule>
