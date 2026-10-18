@@ -253,6 +253,8 @@ export const admin = {
   payments: (tenant, signal) => get('/v1/admin/payments', tenant ? { tenant } : {}, signal),
   /** Vigencia: { accion: AMPLIAR|FIJAR|SIN_VENCIMIENTO, dias?, periodo_fin?, vigencia?, pago_manual?: { base, nota } } */
   setValidity: (id, input) => data(request('PUT', `/v1/admin/tenants/${encodeURIComponent(id)}/validity`, { json: input })),
+  /** Diagnóstico del despliegue (solo lectura, sin secretos) */
+  diagnostics: (signal) => data(get('/v1/admin/diagnostics', {}, signal)),
   /** Pyme Hub Skills (fase 9d) */
   trainers: (signal) => get('/v1/admin/trainers', {}, signal),
   createTrainer: (input) => data(request('POST', '/v1/admin/trainers', { json: input })),

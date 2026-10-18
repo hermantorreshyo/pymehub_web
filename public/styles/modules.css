@@ -853,3 +853,26 @@
 .review-blocks { display: grid; gap: var(--space-3); margin: 0; padding-left: var(--space-5); }
 .review-blocks p, .review-blocks ul { margin: var(--space-1) 0 0; }
 .break { overflow-wrap: anywhere; word-break: break-all; }
+
+/* ---------- Diagnóstico del despliegue ---------- */
+.diag-summary { display: flex; gap: var(--space-4); align-items: center; padding: var(--space-5); border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); }
+.diag-summary h2 { margin: 0; font-size: var(--fs-h2); }
+.diag-summary p { margin: var(--space-1) 0 0; }
+.diag-summary__icon { display: grid; place-items: center; flex: none; width: 56px; height: 56px; border-radius: 50%; }
+.diag-summary--success .diag-summary__icon { background: var(--primary-soft); color: var(--primary-strong); }
+.diag-summary--warning .diag-summary__icon { background: var(--warning-soft); color: var(--warning-strong); }
+.diag-summary--danger .diag-summary__icon { background: var(--danger-soft); color: var(--danger-strong); }
+.diag-toolbar { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; justify-content: space-between; }
+.diag-list { display: grid; margin: 0; padding: 0; list-style: none; }
+.diag-item { display: grid; gap: var(--space-2); padding: var(--space-3) 0; border-top: 1px solid var(--border); }
+.diag-item:first-child { border-top: 0; padding-top: 0; }
+.diag-item__state { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--fs-small); font-weight: 700; }
+.diag-item--success .diag-item__state { color: var(--primary-strong); }
+.diag-item--warning .diag-item__state { color: var(--warning-strong); }
+.diag-item--danger .diag-item__state { color: var(--danger-strong); }
+.diag-item--info .diag-item__state { color: var(--secondary-strong); }
+.diag-item__body { min-width: 0; }
+.diag-item__body p { margin: var(--space-1) 0 0; }
+.diag-item__action { font-size: var(--fs-small); }
+.diag-item__action code { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (min-width: 768px) { .diag-item { grid-template-columns: 140px minmax(0, 1fr); } }

@@ -48,6 +48,7 @@ export const routes = [
   { path: '/empresas', views: { admin: () => import('./views/admin/empresas.js') } },
   { path: '/parametros', views: { admin: () => import('./views/admin/parametros.js') } },
   { path: '/pagos', views: { admin: () => import('./views/admin/pagos.js') } },
+  { path: '/diagnostico', views: { admin: () => import('./views/admin/diagnostico.js') } },
 
   // Gestión
   { path: '/bienestar', feature: 'bienestar', views: { gestion: () => import('./views/management/bienestar.js') } },

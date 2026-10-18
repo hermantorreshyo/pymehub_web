@@ -50,6 +50,7 @@ function admin() {
     { id: 'skills', label: 'Skills', path: '/skills', icon: 'store' },
     { id: 'pagos', label: 'Pagos', path: '/pagos', icon: 'receipt' },
     { id: 'parametros', label: 'Parámetros', path: '/parametros', icon: 'settings' },
+    { id: 'diagnostico', label: 'Diagnóstico', path: '/diagnostico', icon: 'activity' },
   ];
 }
 

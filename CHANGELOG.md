@@ -2,6 +2,24 @@
 
 Formato basado en *Keep a Changelog*; versiones SemVer.
 
+## [0.11.0] · 2026-10-18
+
+**Diagnóstico del despliegue.** Requiere `pymehub_api` 0.11.0.
+
+### Añadido
+- **Administración → Diagnóstico** (`#/diagnostico`):
+  - resultado general con semáforo, texto e icono;
+  - comprobaciones por grupos, cada una con «qué hacer»;
+  - filtro «Ver solo lo que hay que revisar»;
+  - «Comprobar de nuevo», «Copiar el informe» y «Descargar» (`.txt`).
+- Pensado para que lo lance cualquier persona con cuenta de plataforma.
+
+### Cambiado
+- Service worker `v0.11.0`.
+
+### Revisión
+- 390, 768 y 1440 px, sin desbordamiento horizontal y sin errores de consola. Probada la descarga del informe.
+
 ## [0.10.0] · 2026-10-18
 
 **Pyme Hub Skills.** Requiere `pymehub_api` 0.10.0.
