@@ -513,7 +513,8 @@
 
   /* Gestión: sidebar compacto con iconos; la navegación inferior desaparece */
   .app-shell--gestion,
-  .app-shell--admin {
+  .app-shell--admin,
+  .app-shell--formador {
     grid-template-columns: var(--sidebar-width-compact) minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
     grid-template-areas:
@@ -522,17 +523,20 @@
   }
 
   .app-shell--gestion .sidebar,
-  .app-shell--admin .sidebar {
+  .app-shell--admin .sidebar,
+  .app-shell--formador .sidebar {
     display: flex;
     grid-row: 1 / -1;
     padding-inline: var(--space-2);
   }
 
   .app-shell--gestion .mobile-navigation,
-  .app-shell--admin .mobile-navigation { display: none; }
+  .app-shell--admin .mobile-navigation,
+  .app-shell--formador .mobile-navigation { display: none; }
 
   .app-shell--gestion .topbar .brand,
-  .app-shell--admin .topbar .brand { display: none; }
+  .app-shell--admin .topbar .brand,
+  .app-shell--formador .topbar .brand { display: none; }
 
   .sidebar .brand { justify-content: center; padding-inline: 0; }
   .sidebar .brand__text,
@@ -576,12 +580,14 @@
  * =================================================================== */
 @media (min-width: 1024px) {
   .app-shell--gestion,
-  .app-shell--admin {
+  .app-shell--admin,
+  .app-shell--formador {
     grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   }
 
   .app-shell--gestion .sidebar,
-  .app-shell--admin .sidebar { padding-inline: var(--space-3); }
+  .app-shell--admin .sidebar,
+  .app-shell--formador .sidebar { padding-inline: var(--space-3); }
 
   .sidebar .brand { justify-content: flex-start; padding-inline: var(--space-2); }
   .sidebar .brand__text,

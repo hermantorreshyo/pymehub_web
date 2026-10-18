@@ -25,8 +25,23 @@ export const routes = [
       admin: () => import('./views/admin/inicio.js'),
       gestion: () => import('./views/management/inicio.js'),
       empleado: () => import('./views/employee/inicio.js'),
+      formador: () => import('./views/formador/inicio.js'),
     },
   },
+  // Pyme Hub Skills (fase 9d): catálogo para empresas y personas; revisión y ventas para la plataforma
+  {
+    path: '/skills',
+    views: {
+      gestion: () => import('./views/shared/skills.js'),
+      empleado: () => import('./views/shared/skills.js'),
+      admin: () => import('./views/admin/skills.js'),
+    },
+  },
+  // Formador: sus cursos (editor de módulos reutilizado), ficha comercial y ventas
+  { path: '/cursos/nuevo', views: { formador: () => import('./views/management/formacion-editor.js') } },
+  { path: '/cursos/:id/editar', views: { formador: () => import('./views/management/formacion-editor.js') } },
+  { path: '/cursos/:id', views: { formador: () => import('./views/formador/curso.js') } },
+  { path: '/ventas', views: { formador: () => import('./views/formador/ventas.js') } },
   { path: '/mas', view: () => import('./views/shared/mas.js') },
 
   // Plataforma

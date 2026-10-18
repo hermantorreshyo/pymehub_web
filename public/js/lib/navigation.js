@@ -20,6 +20,7 @@ function gestion() {
       badge: session.hasFeature('riesgo_rotacion') ? null : 'Completo',
     },
     { id: 'plantilla', label: 'Plantilla', path: '/plantilla', icon: 'users' },
+    session.hasFeature('formacion') && { id: 'skills', label: 'Skills', path: '/skills', icon: 'store' },
     { id: 'configuracion', label: 'Configuración', path: '/configuracion', icon: 'settings' },
     session.perfil === 'GERENTE' && { id: 'suscripcion', label: 'Suscripción', path: '/suscripcion', icon: 'credit-card' },
   ].filter(Boolean);
@@ -30,13 +31,23 @@ function empleado() {
     { id: 'inicio', label: 'Inicio', path: '/inicio', icon: 'house' },
     session.hasFeature('bienestar') && { id: 'checkin', label: 'Check-in', path: '/checkin', icon: 'smile' },
     session.hasFeature('formacion') && { id: 'formacion', label: 'Formación', path: '/formacion', icon: 'graduation-cap' },
+    session.hasFeature('formacion') && { id: 'skills', label: 'Skills', path: '/skills', icon: 'store' },
   ].filter(Boolean);
+}
+
+/** Formador de Pyme Hub Skills (fase 9d). */
+function formador() {
+  return [
+    { id: 'inicio', label: 'Mis cursos', path: '/inicio', icon: 'graduation-cap' },
+    { id: 'ventas', label: 'Ventas', path: '/ventas', icon: 'receipt' },
+  ];
 }
 
 function admin() {
   return [
     { id: 'inicio', label: 'Resumen', path: '/inicio', icon: 'chart-line' },
     { id: 'empresas', label: 'Empresas', path: '/empresas', icon: 'building' },
+    { id: 'skills', label: 'Skills', path: '/skills', icon: 'store' },
     { id: 'pagos', label: 'Pagos', path: '/pagos', icon: 'receipt' },
     { id: 'parametros', label: 'Parámetros', path: '/parametros', icon: 'settings' },
   ];
@@ -48,6 +59,7 @@ export function navItems() {
     case 'gestion': return gestion();
     case 'empleado': return empleado();
     case 'admin': return admin();
+    case 'formador': return formador();
     default: return [];
   }
 }
@@ -58,7 +70,8 @@ export function bottomItems() {
   const prefer = {
     gestion: ['inicio', 'plantilla', 'bienestar'],
     empleado: ['inicio', 'checkin', 'formacion'],
-    admin: ['inicio', 'empresas'],
+    admin: ['inicio', 'empresas', 'skills'],
+    formador: ['inicio', 'ventas'],
   }[session.grupo] ?? [];
   const chosen = prefer.map((id) => items.find((i) => i.id === id)).filter(Boolean);
   return [...chosen, MAS];

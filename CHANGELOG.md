@@ -2,6 +2,35 @@
 
 Formato basado en *Keep a Changelog*; versiones SemVer.
 
+## [0.10.0] · 2026-10-18
+
+**Pyme Hub Skills.** Requiere `pymehub_api` 0.10.0.
+
+### Añadido
+- **Skills** (`#/skills`) para la gestión y las personas empleadas:
+  - catálogo de cursos de formadores, revisados por Pyme Hub, con objetivos, duración y nivel;
+  - la gerencia ve «149,00 € + IVA · licencia para toda la empresa»; la persona empleada, «19,90 € IVA incluido»;
+  - diálogo de compra con base, IVA y total, condiciones de Skills y, para la persona, la renuncia expresa al desistimiento; después, Stripe Checkout;
+  - estados «Licencia de tu empresa», «Incluido por tu empresa» y «Comprado por ti», con enlaces para asignar el curso o para cursarlo;
+  - tabla de compras y vuelta de Stripe (`?compra=ok|cancelada`).
+- **Panel del formador** (grupo `formador`):
+  - **Mis cursos**: cobro con Stripe Connect («Activar el cobro»), indicadores y listado con estado comercial;
+  - **ficha del curso**: contenido, publicación, precios con el desglose de IVA, comisión y lo que recibe, y envío a revisión;
+  - **Ventas**;
+  - el editor de módulos se reutiliza para escribir los cursos.
+- **Administración → Skills** con tres pestañas:
+  - **Revisión de cursos**: diálogo con todo el contenido y el cuestionario, para aprobar, pedir cambios o retirar;
+  - **Formadores**: alta con enlace de invitación, estado del cobro, ventas, comisión y liquidado;
+  - **Ventas y liquidaciones**.
+- Icono `store`; mensajes para `PH-SKL-002` y `PH-SKL-003`; perfil «Formador de Skills».
+
+### Cambiado
+- La estructura de la aplicación (barra lateral en tableta y escritorio) se extiende al grupo formador.
+- Service worker `v0.10.0`, con las vistas nuevas precargadas.
+
+### Revisión
+- 390, 768 y 1440 px, sin desbordamiento horizontal y sin errores de consola, con los perfiles formador, gerente, empleado y plataforma.
+
 ## [0.9.0] · 2026-10-17
 
 **Suscripción, vigencia y pagos con Stripe en modo prueba.** Requiere `pymehub_api` 0.9.0.

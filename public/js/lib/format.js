@@ -5,7 +5,7 @@
 const LOCALE = 'es-ES';
 
 export const LABELS = {
-  perfil: { ADMIN: 'Administración', GERENTE: 'Gerencia', RRHH: 'RR. HH.', EMPLEADO: 'Empleado' },
+  perfil: { ADMIN: 'Administración', GERENTE: 'Gerencia', RRHH: 'RR. HH.', EMPLEADO: 'Empleado', FORMADOR: 'Formador de Skills' },
   plan: { ENTRADA: 'Plan Entrada', COMPLETO: 'Plan Completo' },
   cicloCobro: { MENSUAL: 'Mensual', ANUAL: 'Anual' },
   estadoEmpresa: { PILOTO: 'Piloto', ACTIVO: 'Activa', SUSPENDIDO: 'Suspendida', BAJA: 'De baja' },

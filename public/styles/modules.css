@@ -836,3 +836,20 @@
 .order-summary__total dt { color: var(--text); }
 .inline-note { display: flex; align-items: flex-start; gap: var(--space-2); margin: 0; }
 .inline-note .icon { flex: none; margin-top: 2px; }
+
+/* ---------- Pyme Hub Skills (fase 9d) ---------- */
+.stack-sm { display: grid; gap: var(--space-2); justify-items: start; }
+.skill-price { margin: var(--space-2) 0 0; font-variant-numeric: tabular-nums; }
+.skill-price strong { font-family: var(--font-display); font-size: 1.25rem; }
+.skill-goals { display: grid; gap: var(--space-1); margin: 0; padding: 0; list-style: none; font-size: var(--fs-small); }
+.skill-goals li { display: flex; gap: var(--space-2); align-items: flex-start; }
+.skill-goals .icon { flex: none; margin-top: 2px; color: var(--primary-strong); }
+.price-grid { display: grid; gap: var(--space-4); }
+@media (min-width: 768px) { .price-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.skill-subhead { margin: 0 0 var(--space-2); font-size: var(--fs-h3); }
+.dialog--wide { width: min(760px, calc(100vw - 2 * var(--space-4))); }
+.dialog__body { padding: var(--space-5); }
+.dialog--wide > .stack { max-height: 70vh; overflow-y: auto; }
+.review-blocks { display: grid; gap: var(--space-3); margin: 0; padding-left: var(--space-5); }
+.review-blocks p, .review-blocks ul { margin: var(--space-1) 0 0; }
+.break { overflow-wrap: anywhere; word-break: break-all; }

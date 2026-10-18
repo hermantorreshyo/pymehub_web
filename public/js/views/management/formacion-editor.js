@@ -1,4 +1,5 @@
-import { ApiError, training } from '../../services/api.js';
+import { ApiError, skills, training } from '../../services/api.js';
+import { session } from '../../lib/store.js';
 import { h, uniqueId } from '../../lib/dom.js';
 import { LABELS } from '../../lib/format.js';
 import { href, navigate } from '../../lib/router.js';
@@ -18,20 +19,34 @@ const LIMITS = { objetivos: 5, bloques: 8, preguntasMin: 2, preguntasMax: 4, opc
  * Crear o editar un módulo propio (RF-046), sin IA: lo escribe la empresa con su conocimiento.
  * Se guarda como borrador y se publica desde la ficha del módulo.
  */
+/**
+ * El mismo editor sirve a los formadores de Pyme Hub Skills (fase 9d) para escribir sus cursos:
+ * cambian la API, las rutas y los textos.
+ */
+function modo() {
+  const formador = session.grupo === 'formador';
+  return formador
+    ? { api: skills, ficha: (id) => `/cursos/${id}`, lista: () => href('/inicio'), listaTexto: 'Volver a mis cursos', nombre: 'curso',
+      subtitulo: 'Escribe un micro-curso de hasta 15 minutos con su cuestionario. Después fijarás el precio y lo enviarás a revisión.' }
+    : { api: training, ficha: (id) => `/formacion/modulos/${id}`, lista: () => href('/formacion', { tab: 'catalogo' }), listaTexto: 'Volver al catálogo', nombre: 'módulo',
+      subtitulo: 'Crea un micro-módulo con el conocimiento de tu empresa: normas del centro, procedimientos, acogida…' };
+}
+
 export default async function moduleEditorView({ params }) {
   const editing = Boolean(params.id);
-  if (!editing) return { title: 'Nuevo módulo', node: editorPage(null) };
+  const M = modo();
+  if (!editing) return { title: `Nuevo ${M.nombre}`, node: editorPage(null) };
 
   const root = h('div', {}, loadingState({ label: 'Cargando el módulo…', lines: 6 }));
   try {
-    const m = await training.module(params.id);
+    const m = await M.api.module(params.id);
     if (!m.propio) {
       root.replaceChildren(errorState({ error: new ApiError({ code: 'PH-PERM-001' }), title: 'El catálogo de Pyme Hub no se puede editar.' }));
     } else {
       return { title: 'Editar módulo', node: editorPage(m) };
     }
   } catch (error) {
-    root.replaceChildren(errorState({ error, onRetry: () => navigate(`/formacion/modulos/${params.id}/editar`) }));
+    root.replaceChildren(errorState({ error, onRetry: () => navigate(`${M.ficha(params.id)}/editar`) }));
   }
   return { title: 'Editar módulo', node: page({ title: 'Editar módulo', children: [root] }).node };
 }
@@ -98,7 +113,7 @@ function editorPage(m) {
     card({ title: 'Cuestionario', iconName: 'list-checks', body: preguntas.node }),
     notice,
     h('div', { class: 'form__actions' },
-      linkButton({ text: 'Cancelar', href: m ? href(`/formacion/modulos/${m.id}`) : href('/formacion', { tab: 'catalogo' }), variant: 'tertiary' }),
+      linkButton({ text: 'Cancelar', href: m ? href(modo().ficha(m.id)) : modo().lista(), variant: 'tertiary' }),
       submit));
 
   form.addEventListener('submit', async (event) => {
@@ -126,9 +141,10 @@ function editorPage(m) {
 
     setLoading(submit, true, 'Guardando…');
     try {
-      const saved = m ? await training.updateModule(m.id, input) : await training.createModule(input);
+      const { api } = modo();
+      const saved = m ? await api.updateModule(m.id, input) : await api.createModule(input);
       toast(m ? 'Cambios guardados.' : 'Borrador guardado. Revísalo y publícalo cuando esté listo.');
-      navigate(`/formacion/modulos/${saved.id}`);
+      navigate(modo().ficha(saved.id));
     } catch (error) {
       setLoading(submit, false);
       const fieldErrors = error instanceof ApiError ? error.fieldErrors : {};
@@ -140,9 +156,9 @@ function editorPage(m) {
   });
 
   return page({
-    title: m ? 'Editar módulo' : 'Nuevo módulo',
-    subtitle: m ? m.titulo : 'Crea un micro-módulo con el conocimiento de tu empresa: normas del centro, procedimientos, acogida…',
-    back: { href: m ? href(`/formacion/modulos/${m.id}`) : href('/formacion', { tab: 'catalogo' }), label: m ? 'Volver al módulo' : 'Volver al catálogo' },
+    title: m ? `Editar ${modo().nombre}` : `Nuevo ${modo().nombre}`,
+    subtitle: m ? m.titulo : modo().subtitulo,
+    back: { href: m ? href(modo().ficha(m.id)) : modo().lista(), label: m ? `Volver al ${modo().nombre}` : modo().listaTexto },
     children: [h('div', { class: 'cq' }, form)],
   }).node;
 }

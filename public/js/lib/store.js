@@ -26,7 +26,7 @@ const listeners = new Set();
 let me = null;
 
 /** Grupo de experiencia según el perfil (RNF-031). */
-const GRUPOS = { ADMIN: 'admin', GERENTE: 'gestion', RRHH: 'gestion', EMPLEADO: 'empleado' };
+const GRUPOS = { ADMIN: 'admin', GERENTE: 'gestion', RRHH: 'gestion', EMPLEADO: 'empleado', FORMADOR: 'formador' };
 
 export const session = {
   get me() {

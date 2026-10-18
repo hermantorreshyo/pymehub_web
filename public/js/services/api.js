@@ -22,6 +22,8 @@ const MESSAGES = {
   'PH-PERM-001': 'Tu perfil no permite hacer esta acción.',
   'PH-PLAN-001': 'Esta funcionalidad forma parte del plan Completo.',
   'PH-PLAN-002': 'La suscripción ha vencido: puedes consultar y exportar, pero no hacer cambios hasta renovarla.',
+  'PH-SKL-002': 'El formador todavía no puede cobrar online. Prueba más adelante.',
+  'PH-SKL-003': 'Este curso ya está disponible para ti.',
   'PH-PAY-001': 'El pago online no está disponible ahora mismo. Escríbenos y te ayudamos a renovar.',
   'PH-PAY-002': 'No hemos podido conectar con la pasarela de pago. Inténtalo de nuevo en unos minutos.',
   'PH-PAY-003': 'Tu empresa ya tiene el pago online activo. Gestiona los cambios desde «Gestionar el pago».',
@@ -251,6 +253,13 @@ export const admin = {
   payments: (tenant, signal) => get('/v1/admin/payments', tenant ? { tenant } : {}, signal),
   /** Vigencia: { accion: AMPLIAR|FIJAR|SIN_VENCIMIENTO, dias?, periodo_fin?, vigencia?, pago_manual?: { base, nota } } */
   setValidity: (id, input) => data(request('PUT', `/v1/admin/tenants/${encodeURIComponent(id)}/validity`, { json: input })),
+  /** Pyme Hub Skills (fase 9d) */
+  trainers: (signal) => get('/v1/admin/trainers', {}, signal),
+  createTrainer: (input) => data(request('POST', '/v1/admin/trainers', { json: input })),
+  skillsCourses: (estado, signal) => get('/v1/admin/skills/courses', estado ? { estado } : {}, signal),
+  skillsCourse: (id, signal) => data(get(`/v1/admin/skills/courses/${encodeURIComponent(id)}`, {}, signal)),
+  reviewCourse: (id, input) => data(request('POST', `/v1/admin/skills/courses/${encodeURIComponent(id)}/review`, { json: input })),
+  skillsSales: (signal) => get('/v1/admin/skills/sales', {}, signal),
   /** Métricas del QR del folleto (DMO-035). query: { campaign, from, to } → { data, meta } */
   campaignMetrics: (query, signal) => get('/v1/admin/campaign-metrics', query, signal),
 };
@@ -277,6 +286,26 @@ export const billing = {
   checkout: (input) => data(request('POST', '/v1/billing/checkout', { json: input })),
   /** Portal del cliente de Stripe → { url } */
   portal: () => data(request('POST', '/v1/billing/portal', { json: {} })),
+};
+
+/* ---------- Pyme Hub Skills (fase 9d) ---------- */
+export const skills = {
+  /** Cursos aprobados con precios e importes por tipo de compra → { data, meta } */
+  catalog: (signal) => get('/v1/skills/catalog', {}, signal),
+  purchases: (signal) => get('/v1/skills/purchases', {}, signal),
+  /** { modulo_id, acepta_condiciones, renuncia_desistimiento? } → { url, compra_id, importe } */
+  purchase: (input) => data(request('POST', '/v1/skills/purchases', { json: input })),
+  // Formador: sus cursos (mismo formato que los módulos de formación)
+  myCourses: (signal) => get('/v1/skills/my-courses', {}, signal),
+  module: (id, signal) => data(get(`/v1/skills/my-courses/${encodeURIComponent(id)}`, {}, signal)),
+  createModule: (input) => data(request('POST', '/v1/skills/my-courses', { json: input })),
+  updateModule: (id, input) => data(request('PATCH', `/v1/skills/my-courses/${encodeURIComponent(id)}`, { json: input })),
+  publishModule: (id) => data(request('POST', `/v1/skills/my-courses/${encodeURIComponent(id)}/publish`, { json: {} })),
+  listing: (id, input) => data(request('PUT', `/v1/skills/my-courses/${encodeURIComponent(id)}/listing`, { json: input })),
+  submit: (id) => data(request('POST', `/v1/skills/my-courses/${encodeURIComponent(id)}/submit`, { json: {} })),
+  sales: (signal) => get('/v1/skills/sales', {}, signal),
+  connectStatus: (signal) => data(get('/v1/skills/connect', {}, signal)),
+  connect: () => data(request('POST', '/v1/skills/connect', { json: {} })),
 };
 
 /* ---------- Portabilidad y derechos RGPD (LEG-017, §8.8) ---------- */
